@@ -1,0 +1,98 @@
+<?php
+return [
+    'login_with' => 'Anmelden mit :provider',
+    'or'         => 'oder',
+
+    'message' => [
+        'invalid_flow'              => 'Die Anmeldung ist ungültig oder abgelaufen. Bitte versuche es erneut.',
+        'provider_error'            => 'Die Anmeldung beim gewählten Anbieter ist fehlgeschlagen. Bitte versuche es erneut.',
+        'email_exists'              => 'Diese E-Mail-Adresse wird bereits verwendet. Bitte melde dich mit deinem bestehenden Konto an und verbinde diesen Anbieter anschließend unter „Verbindungen“ (/oidc/verbindungen).',
+        'connected'                 => 'Dein Konto wurde erfolgreich mit :provider verbunden.',
+        'already_connected'         => 'Dieser Anbieter ist bereits mit deinem Konto verbunden.',
+        'already_linked_elsewhere'  => 'Dieses :provider-Konto ist bereits mit einem anderen Konto auf dieser Seite verbunden.',
+        'disconnected'              => 'Die Verbindung wurde getrennt.',
+        'registration_disabled'     => 'Die Registrierung neuer Konten ist derzeit deaktiviert.',
+    ],
+
+    'login' => [
+        'sidename' => 'Anmelden mit externem Anbieter',
+        'none'     => 'Es ist aktuell kein externer Anbieter eingerichtet.',
+        'password' => 'Mit E-Mail und Passwort anmelden',
+    ],
+
+    'complete_profile' => [
+        'sidename'  => 'Profil vervollständigen',
+        'intro'     => 'Fast geschafft! Bitte vervollständige noch die folgenden Angaben, um dein Konto zu erstellen.',
+        'nickname'  => 'Nickname',
+        'firstname' => 'Vorname',
+        'name'      => 'Nachname',
+        'email'     => 'E-Mail-Adresse',
+        'submit'    => 'Konto erstellen',
+    ],
+
+    'connections' => [
+        'sidename'         => 'Verbindungen',
+        'linked-title'     => 'Verbundene Anbieter',
+        'none-linked'      => 'Du hast noch keinen Anbieter verbunden.',
+        'connect-title'    => 'Anbieter verbinden',
+        'none-connectable' => 'Es sind aktuell keine weiteren Anbieter verfügbar.',
+        'disconnect-hint'  => 'Hast du kein eigenes Passwort, kannst du es jederzeit über „Passwort vergessen?“ auf der Anmeldeseite festlegen.',
+        'btn' => [
+            'disconnect' => 'Trennen',
+            'connect'    => 'Verbinden',
+        ],
+    ],
+
+    'admin' => [
+        'index' => [
+            'sidename'          => 'OIDC-Anbieter',
+            'create'            => 'Neuen Anbieter anlegen',
+            'name'              => 'Name',
+            'slug'              => 'Slug',
+            'issuer'            => 'Issuer',
+            'active'            => 'Aktiv',
+            'yes'               => 'Ja',
+            'no'                => 'Nein',
+            'action'            => 'Aktion',
+            'empty'             => 'Es ist noch kein Anbieter angelegt.',
+            'copy_redirect_url' => 'Redirect-URL kopieren',
+            'copy_title'        => 'Die Redirect-URL muss beim OIDC-Anbieter als Callback-/Redirect-URL hinterlegt werden.',
+            'copied'            => 'Kopiert!',
+            'edit'              => 'Bearbeiten',
+            'delete'            => 'Löschen',
+            'delete_title'      => 'Anbieter löschen',
+            'delete_confirm'    => 'Soll der Anbieter „:name“ mit allen Verbindungen der Benutzer gelöscht werden?',
+        ],
+        'form' => [
+            'sidename-new'                => 'Neuer OIDC-Anbieter',
+            'sidename-edit'               => 'OIDC-Anbieter bearbeiten',
+            'back_overview'               => 'Zurück zur Übersicht',
+            'name'                        => 'Name (intern, z.B. "Google")',
+            'slug'                        => 'Slug (Teil der URL, z.B. "google")',
+            'button_label'                => 'Beschriftung Login-Button (optional)',
+            'button_color'                => 'Farbe Login-Button (optional)',
+            'icon'                        => 'Icon Login-Button (optional, Font Awesome Klasse)',
+            'icon_help'                   => 'Klassenname eines kostenlosen Font-Awesome-Icons, z.B. "fa-brands fa-twitch".',
+            'preview'                     => 'Vorschau',
+            'appearance'                  => 'Erscheinungsbild',
+            'issuer'                      => 'Issuer-URL',
+            'client_id'                   => 'Client-ID',
+            'client_secret'               => 'Client-Secret',
+            'client_secret_keep'          => 'Leer lassen, um das gespeicherte Secret zu behalten',
+            'scopes'                      => 'Scopes',
+            'extra_authorize_params'      => 'Zusätzliche Authorize-Parameter (optional, als JSON-Objekt)',
+            'extra_authorize_params_help' => 'Wird an die Login-URL des Anbieters angehängt. Z.B. für Twitch: {"claims": "{\"id_token\":{\"email\":null,\"email_verified\":null}}"}',
+            'active'                      => 'Aktiv',
+            'create'                      => 'Anbieter anlegen',
+            'save'                        => 'Änderungen speichern',
+        ],
+        'success' => [
+            'create' => 'Der Anbieter wurde angelegt.',
+            'save'   => 'Der Anbieter wurde gespeichert.',
+            'delete' => 'Der Anbieter wurde gelöscht.',
+        ],
+        'error' => [
+            'extra_authorize_params_not_object' => 'Die zusätzlichen Authorize-Parameter müssen ein JSON-Objekt sein.',
+        ],
+    ],
+];
