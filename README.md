@@ -91,7 +91,7 @@ The README of xTIPP's plugin system forbids changing xTIPP files and overriding 
 
 ## Provider templates
 
-The dropdown **Vorlage** on the create page (not on the edit page) is filled from `resources/provider-templates.json`. Picking a template fills the fields directly, without a reload, moves the cursor to the Client-ID and shows where to get Client-ID and Client-Secret. Every value can still be changed afterwards, and Client-ID and Client-Secret are never part of a template.
+The dropdown **Vorlage** on the create page (not on the edit page) is filled from `resources/provider-templates.json` and lists the templates sorted by name. Picking a template fills the fields directly, without a reload, moves the cursor to the Client-ID and shows where to get Client-ID and Client-Secret. Every value can still be changed afterwards, and Client-ID and Client-Secret are never part of a template.
 
 ```json
 [

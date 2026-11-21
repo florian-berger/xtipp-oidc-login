@@ -29,7 +29,7 @@ class ProviderTemplates {
     }
 
     /**
-     * All valid templates, in the order of the file
+     * All valid templates, sorted by name
      *
      * @return array<int, array<string, string|null>>
      */
@@ -83,6 +83,9 @@ class ProviderTemplates {
             $keys[$template['key']] = true;
             $templates[]            = $template;
         }
+
+        // Sorted by name for the dropdown, independent of the order in the file
+        usort($templates, fn (array $a, array $b) => strnatcasecmp($a['name'], $b['name']));
 
         return $templates;
     }
