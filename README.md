@@ -4,7 +4,7 @@
 [![Issues](https://img.shields.io/github/issues/florian-berger/xtipp-oidc-login?style=for-the-badge)](https://github.com/florian-berger/xtipp-oidc-login/issues)
 [![Discord](https://img.shields.io/discord/302523634075828226?label=Discord&logo=discord&style=for-the-badge)](https://ultgmng.de/discord)
 
-A plugin for [xTIPP](https://xcript.de/), the tippgame software, that adds sign-in and registration through any OpenID Connect provider (for example Google or Twitch). It is built on the plugin system introduced in xTIPP 1.0.35, so **no file of xTIPP is changed**, and the plugin survives updates of xTIPP.
+A plugin for [xTIPP](https://xcript.de/), the tippgame software, that adds sign-in and registration through any OpenID Connect provider (for example Google or Twitch). It is built on the plugin system of xTIPP and its hook points (since xTIPP 1.0.36), so **no file of xTIPP is changed**, and the plugin survives updates of xTIPP.
 
 The interface of the plugin is in German, like xTIPP itself.
 
@@ -13,31 +13,38 @@ The interface of the plugin is in German, like xTIPP itself.
 - Any number of OIDC providers, managed by administrators in an own admin page: issuer, client ID, client secret, scopes, optional extra authorization parameters, button label, colour and icon (with a live preview).
 - Login and registration with the authorization code flow, with `state` and `nonce`.
 - New accounts are created inactive, exactly like the normal registration of xTIPP. The welcome mail and the notification of the admins are sent as usual, admins must approve new users.
+- The login buttons appear on the normal login page of xTIPP, below the username/password form.
+- Menu entries in the admin center (**Konfiguration → OIDC-Anbieter**) and in the profile menu (**Verknüpfte Konten**).
 - Users can connect and disconnect providers on their own page.
 - An email address that already belongs to an xTIPP account is never taken over (see [Security](#security)).
 
 ## Requirements
 
-- xTIPP 1.0.35 (the plugin system is required, older versions do not have it)
+- xTIPP 1.0.36 (the hook points for menus and pages are required, older versions do not have them; use plugin version 0.0.1 for xTIPP 1.0.35)
 - PHP 8.4 and the extensions xTIPP needs; additionally `openssl`, which is used to verify the signature of the ID tokens
 
 ## Installation
 
-1. Upload the folder to `plugins/oidc/` of your xTIPP installation. Check that **all files** arrived.
+1. Install the plugin, either way:
+   - **ZIP upload:** upload the ZIP of a [release](https://github.com/florian-berger/xtipp-oidc-login/releases) in the admin area under **Konfiguration → Erweiterungen**. The upload must be enabled on the server with `XTIPP_PLUGIN_UPLOAD=1` in the `.env` of xTIPP.
+   - **FTP:** upload the folder to `plugins/oidc/` of your xTIPP installation. Check that **all files** arrived.
 2. Activate it in the admin area under **Konfiguration → Erweiterungen**. This runs the migration, which creates the database tables.
-3. Open `/admin/oidc-anbieter` and create a provider. Use the button in the list to copy its redirect URL (`https://your-site/oidc/<slug>/callback`) and register it at the provider.
+3. Open **Konfiguration → OIDC-Anbieter** (`/admin/oidc-anbieter`) and create a provider. Use the button in the list to copy its redirect URL (`https://your-site/oidc/<slug>/callback`) and register it at the provider.
 4. Optional: allow new accounts via OIDC (see [Settings](#settings)).
-5. Link to `/oidc/anmelden` from somewhere on your site (see [Limitations](#limitations)).
+
+The buttons of all active providers then appear on the login page of xTIPP.
+
+To update the plugin, upload the ZIP of the new version the same way (the old version is kept in `storage/app/plugin-backups/`), or deactivate it, replace the files via FTP and activate it again.
 
 ## Pages
 
 | Address | Who | Purpose |
 |---|---|---|
-| `/oidc/anmelden` | logged-out users | Login buttons of all active providers |
+| `/oidc/anmelden` | logged-out users | Login buttons of all active providers (the same buttons are also shown on `/login`) |
 | `/oidc/{slug}/redirect` | everyone | Starts the flow (`?intent=link` to connect, when logged in) |
 | `/oidc/{slug}/callback` | everyone | Redirect URL, to be registered at the provider |
 | `/oidc/profil-vervollstaendigen` | everyone | Last step of a new registration |
-| `/oidc/verbindungen` | logged-in users | Connect and disconnect providers |
+| `/oidc/verknuepfte-konten` | logged-in users | Link and unlink providers ("Verknüpfte Konten") |
 | `/admin/oidc-anbieter` | **administrators only** | Manage the providers |
 
 The admin routes use the same middleware as the admin area of xTIPP (`auth`, `hasRole:Admin`, `last_activity`). The
@@ -60,7 +67,7 @@ The providers themselves are not plugin settings, because a setting is limited t
 3. The ID token is verified (see [Security](#security)).
 4. Then one of the following happens:
    - The provider account is already connected: the user is logged in. Inactive accounts are refused.
-   - The email address belongs to an existing account: the login is refused with a hint to log in and connect the provider on `/oidc/verbindungen`.
+   - The email address belongs to an existing account: the login is refused with a hint to log in and link the provider under **Verknüpfte Konten** in the profile menu (`/oidc/verknuepfte-konten`).
    - Otherwise, if registration is allowed: the user completes nickname and name (as far as xTIPP asks for them) and an inactive account is created together with the connection. A notification to the admins is sent that there is a new registration.
 
 ## Security
@@ -75,14 +82,12 @@ The providers themselves are not plugin settings, because a setting is limited t
 
 ## Limitations
 
-xTIPP 1.0.35 has no hook points for plugins, so this plugin cannot:
+The README of xTIPP's plugin system forbids changing xTIPP files and overriding its views, and this plugin follows that on purpose. It only uses the official hook points of xTIPP 1.0.36, which leaves these limitations:
 
-- show the buttons on the normal login page - link to `/oidc/anmelden` instead;
-- add an entry to the admin menu - open `/admin/oidc-anbieter` directly;
-- add a section to the profile page - `/oidc/verbindungen` is not linked from there;
-- ship Composer packages, tests or compiled CSS (the hover effect of the buttons uses a small inline style).
-
-The README of xTIPP's plugin system forbids changing xTIPP files and overriding its views, and this plugin follows that on purpose. Official hook points (login form, menus, profile, events) would make a cleaner version possible.
+- xTIPP has no hook point inside the login form. The buttons are added through `layout.content.bottom` on the login route, so they appear **below** the form.
+- The linked accounts are a page of their own (`/oidc/verknuepfte-konten`, linked in the profile menu as **Verknüpfte Konten**), not a section of the profile settings page.
+- xTIPP sends a Content-Security-Policy. The scripts of the admin pages are inline scripts with `csp_nonce()`, and event attributes like `onclick` are not used.
+- No Composer packages, tests or compiled CSS (the hover effect of the buttons uses a small inline style).
 
 ## Removing the plugin
 
@@ -105,7 +110,7 @@ plugins/oidc/
 ├── routes/web.php
 ├── resources/
 │   ├── lang/de/ui.php
-│   └── views/                   login, connections, complete-profile, admin/
+│   └── views/                   login, connections, complete-profile, admin/, partials/ (buttons, login slot)
 └── src/                         namespace FlorianBerger\Oidc\
     ├── OidcServiceProvider.php
     ├── Http/Controllers/
@@ -133,7 +138,7 @@ Create a application at https://dev.twitch.tv/console/apps and use the informati
 
 While writing this, I am not forced to write this AI disclaimer based on the rules of the European Union. But to be fully transparent, I write the following paragraph.
 
-Developing this plugin was assisted by AI, specific **Claude Code** by **Anthropic**. The used model was **Claude Sonnect 5.5**. AI assisted means that a human designed the approach and AI helped building it.
+Developing this plugin was assisted by AI, specific **Claude Code** by **Anthropic**. The used model was **Claude Sonnet 5.5**. AI assisted means that a human designed the approach and AI helped building it.
 
 > [!IMPORTANT]
 > - **This is security-relevant code!** It handles logins and creates accounts. The verification of the ID token is a hand-written implementation on top of OpenSSL and has not been audited by a third party. It was checked against real RSA and EC keys, but not with a full test suite, and automated tests are not part of this plugin.

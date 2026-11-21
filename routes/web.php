@@ -20,12 +20,15 @@ Route::middleware(['web'])->group(function () {
     });
 
     /**
-     * Logged-in users: own connections
+     * Logged-in users: own linked accounts
      */
-    Route::middleware(['auth', 'last_activity'])->prefix('oidc/verbindungen')->group(function () {
+    Route::middleware(['auth', 'last_activity'])->prefix('oidc/verknuepfte-konten')->group(function () {
         Route::get('/', [OidcConnectionsController::class, 'index'])->name('plugin-oidc.connections');
-        Route::post('{identity}/trennen', [OidcConnectionsController::class, 'disconnect'])->whereNumber('identity')->name('plugin-oidc.connections.disconnect');
+        Route::post('{identity}/aufheben', [OidcConnectionsController::class, 'disconnect'])->whereNumber('identity')->name('plugin-oidc.connections.disconnect');
     });
+
+    // Old address of the linked accounts (up to plugin version 0.0.1), kept for bookmarks and links
+    Route::get('oidc/verbindungen', [OidcConnectionsController::class, 'legacyRedirect']);
 
     /**
      * Administrators only: same middleware as the admin area of xTIPP

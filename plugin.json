@@ -1,12 +1,12 @@
 {
     "name": "oidc",
     "title": "OIDC-Anmeldung",
-    "version": "0.0.1",
-    "description": "Anmeldung und Registrierung über OpenID-Connect-Anbieter (z.B. Google, Twitch). Anbieter konfigurieren: \"DOMAIN/admin/oidc-anbieter\"; Anmelden: \"DOMAIN/oidc/anmelden\"; Verbinden: \"DOMAIN/oidc/verbindungen\"",
+    "version": "0.0.0-dev",
+    "description": "Anmeldung und Registrierung über OpenID-Connect (z.B. Google, Twitch). Die Buttons erscheinen auf der Login-Seite, die Anbieter verwaltest du im Admincenter unter Konfiguration → OIDC-Anbieter, die eigenen verknüpften Konten stehen im Profilmenü.",
     "author": "Florian <UltimateG4ming> Berger",
     "requires": {
-        "xtipp": "1.0.35",
-        "xtipp_max": "1.0.35"
+        "xtipp": "1.0.36",
+        "xtipp_max": "1.0.36"
     },
     "provider": "FlorianBerger\\Oidc\\OidcServiceProvider",
     "autoload": {
@@ -20,7 +20,7 @@
             "label": "Neue Konten über OIDC erlauben",
             "type": "checkbox",
             "default": false,
-            "help": "Ausgeschaltet können sich nur Benutzer anmelden, die ihr Konto bereits mit einem Anbieter verbunden haben. Zusätzlich gilt die allgemeine Einstellung zur Registrierung von xTIPP. Die Anbieter selbst verwaltest du unter /admin/oidc-anbieter."
+            "help": "Ausgeschaltet können sich nur Benutzer anmelden, die ihr Konto bereits mit einem Anbieter verknüpft haben. Zusätzlich gilt die allgemeine Einstellung zur Registrierung von xTIPP. Die Anbieter selbst verwaltest du unter /admin/oidc-anbieter."
         }
     ]
 }
