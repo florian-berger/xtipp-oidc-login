@@ -1,6 +1,17 @@
 @extends('layouts.app')
 @section('title', trans('oidc::ui.connections.sidename'))
 @section('content')
+    {{-- Plain explanation for users without technical knowledge; padding-left inline, xTIPP's CSS has no pl-5 --}}
+    <section class="bg-slate-200 rounded p-3 mb-8" aria-labelledby="plugin-oidc-intro-title">
+        <h2 id="plugin-oidc-intro-title" class="font-bold mb-2">{{ trans('oidc::ui.connections.intro.title') }}</h2>
+        <p>{{ trans('oidc::ui.connections.intro.text') }}</p>
+        <ul class="list-disc mt-2" style="padding-left: 1.25rem;">
+            @foreach (trans('oidc::ui.connections.intro.points') as $point)
+                <li>{{ $point }}</li>
+            @endforeach
+        </ul>
+    </section>
+
     <div class="section-title">
         {{ trans('oidc::ui.connections.linked-title') }}
     </div>

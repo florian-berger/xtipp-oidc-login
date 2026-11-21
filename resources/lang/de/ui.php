@@ -37,11 +37,21 @@ return [
 
     'connections' => [
         'sidename'         => 'Verknüpfte Konten',
+        'intro' => [
+            'title'  => 'Was sind verknüpfte Konten?',
+            'text'   => 'Du kannst dich bei uns nicht nur mit E-Mail-Adresse und Passwort anmelden, sondern auch mit einem Konto, das du schon bei einem anderen Dienst hast (zum Beispiel Twitch oder Google). Dafür verknüpfst du es hier einmal mit deinem Konto.',
+            'points' => [
+                'Die Anmeldung findet auf der Seite des Dienstes statt. Dein Passwort dort bekommen wir nie zu sehen.',
+                'Wir erhalten vom Dienst eine Kennung deines Kontos und die Angaben, die du bei der Anmeldung freigibst, zum Beispiel deinen Namen und deine E-Mail-Adresse. Dein Passwort und dein Zugang zum Dienst gehören nicht dazu.',
+                'Die Anmeldung mit E-Mail-Adresse und Passwort funktioniert weiterhin.',
+                'Hebst du eine Verknüpfung auf, bleiben dein Konto und deine Tipps erhalten. Nur diese Art der Anmeldung entfällt.',
+            ],
+        ],
         'linked-title'     => 'Verknüpfte Anbieter',
         'none-linked'      => 'Du hast noch keinen Anbieter verknüpft.',
         'connect-title'    => 'Anbieter verknüpfen',
         'none-connectable' => 'Es sind aktuell keine weiteren Anbieter verfügbar.',
-        'disconnect-hint'  => 'Hast du kein eigenes Passwort, kannst du es jederzeit über „Passwort vergessen?“ auf der Anmeldeseite festlegen.',
+        'disconnect-hint'  => 'Hast du dich über einen Dienst registriert, hast du noch kein eigenes Passwort. Lege es vor dem Aufheben deiner letzten Verknüpfung über „Passwort vergessen?“ auf der Anmeldeseite fest, sonst kannst du dich erst danach wieder anmelden.',
         'btn' => [
             'disconnect' => 'Verknüpfung aufheben',
             'connect'    => 'Verknüpfen',
