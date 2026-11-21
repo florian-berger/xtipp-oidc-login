@@ -1,4 +1,7 @@
-@php($isNew = !$oidcProvider->exists)
+@php
+    $isNew = !$oidcProvider->exists;
+@endphp
+
 @extends('layouts.app')
 @section('title', trans($isNew ? 'oidc::ui.admin.form.sidename-new' : 'oidc::ui.admin.form.sidename-edit'))
 @section('content')
@@ -24,6 +27,24 @@
             @unless ($isNew)
                 <input type="hidden" name="oidc_provider_id" value="{{ $oidcProvider->id }}" />
             @endunless
+
+            {{-- Templates only on the create page; without a valid file there are none and the dropdown is hidden --}}
+            @if ($isNew && !empty($providerTemplates))
+                <div class="mb-5">
+                    <label for="oidc_template" class="label-normal-gray">{{ trans('oidc::ui.admin.form.template') }}</label>
+                    <select id="oidc_template" class="input-normal-gray">
+                        <option value="">{{ trans('oidc::ui.admin.form.template_none') }}</option>
+                        @foreach ($providerTemplates as $providerTemplate)
+                            <option value="{{ $providerTemplate['key'] }}">{{ $providerTemplate['name'] }}</option>
+                        @endforeach
+                    </select>
+                    <p class="text-sm text-gray-500">{{ trans('oidc::ui.admin.form.template_help') }}</p>
+                    <div id="oidc_template_hint" class="hidden bg-slate-200 rounded p-3 mt-2" role="status" aria-live="polite">
+                        <span id="oidc_template_hint_text"></span>
+                        <a id="oidc_template_hint_link" href="#" target="_blank" rel="noopener noreferrer" class="hidden underline break-all"></a>
+                    </div>
+                </div>
+            @endif
 
             <div class="grid grid-cols-1 md:grid-cols-2 md:gap-5">
                 <div>
@@ -79,8 +100,8 @@
                         <div class="mt-5">
                             <label for="button_color" class="label-normal-gray">{{ trans('oidc::ui.admin.form.button_color') }}</label>
                             <div class="flex items-center gap-2">
-                                <input type="color" id="button_color_picker" value="{{ old('button_color', $oidcProvider->button_color) ?: '#4f46e5' }}" class="cursor-pointer" style="height: 2.5rem; width: 3.5rem; padding: 0; border: 0;" />
-                                <input type="text" name="button_color" value="{{ old('button_color', $oidcProvider->button_color) }}" id="button_color" class="input-normal-gray" placeholder="#4F46E5" maxlength="7" />
+                                <input type="color" id="button_color_picker" value="{{ old('button_color', $oidcProvider->button_color) ?: '#6b7280' }}" class="cursor-pointer" style="height: 2.5rem; width: 3.5rem; padding: 0; border: 0;" />
+                                <input type="text" name="button_color" value="{{ old('button_color', $oidcProvider->button_color) }}" id="button_color" class="input-normal-gray" placeholder="#6B7280" maxlength="7" />
                             </div>
                         </div>
                         <div class="mt-5">
@@ -110,6 +131,14 @@
         </form>
     </div>
 
+    {{-- The json directive of Blade splits its argument at commas, so only plain variables are passed to it --}}
+    @php
+        $jsLabelTemplate   = trans('oidc::ui.login_with', ['provider' => '__PROVIDER__']);
+        $jsTemplates       = (object) collect($providerTemplates ?? [])->keyBy('key')->all();
+        $jsDefaultScopes   = $defaultScopes ?? '';
+        $jsHintPlain       = trans('oidc::ui.admin.form.template_applied', ['name' => '__NAME__']);
+        $jsHintConsole     = trans('oidc::ui.admin.form.template_applied_console', ['name' => '__NAME__']);
+    @endphp
     <script nonce="{{ csp_nonce() }}">
         (function () {
             var nameInput     = document.getElementById('name');
@@ -120,7 +149,7 @@
             var preview       = document.getElementById('oidc_button_preview');
             var previewIcon   = document.getElementById('oidc_button_preview_icon');
             var previewLabel  = document.getElementById('oidc_button_preview_label');
-            var labelTemplate = @json(trans('oidc::ui.login_with', ['provider' => '__PROVIDER__']));
+            var labelTemplate = @json($jsLabelTemplate);
 
             function updatePreview() {
                 var providerName = (labelInput.value.trim() || nameInput.value.trim() || 'Provider');
@@ -148,6 +177,65 @@
             });
 
             updatePreview();
+
+            /*
+             * Templates: fill the fields that are the same for every installation, without a reload. Client-ID and
+             * Client-Secret are never touched. A field the template does not have is emptied or gets its default.
+             */
+            var templateSelect = document.getElementById('oidc_template');
+            if (!templateSelect) {
+                return;
+            }
+
+            var templates     = @json($jsTemplates);
+            var defaultScopes = @json($jsDefaultScopes);
+            var hint          = document.getElementById('oidc_template_hint');
+            var hintText      = document.getElementById('oidc_template_hint_text');
+            var hintLink      = document.getElementById('oidc_template_hint_link');
+            var hintTexts     = {
+                plain:   @json($jsHintPlain),
+                console: @json($jsHintConsole)
+            };
+            var neutralColor  = '#6B7280';
+            var fieldDefaults = {
+                name: '', slug: '', issuer: '', scopes: defaultScopes, extra_authorize_params: '',
+                button_label: '', icon: ''
+            };
+
+            templateSelect.addEventListener('change', function () {
+                var template = templates[templateSelect.value];
+                if (!template) {
+                    hint.classList.add('hidden');
+                    return;
+                }
+
+                Object.keys(fieldDefaults).forEach(function (field) {
+                    var value = template[field];
+                    document.getElementById(field).value = (value === null || value === undefined) ? fieldDefaults[field] : value;
+                });
+
+                // Always the color of the template; a neutral gray if it has none or an invalid one
+                var templateColor = (typeof template.button_color === 'string') ? template.button_color.trim() : '';
+                var buttonColor   = /^#[0-9A-Fa-f]{6}$/.test(templateColor) ? templateColor : neutralColor;
+                colorText.value   = buttonColor;
+                colorPicker.value = buttonColor.toLowerCase();
+                updatePreview();
+
+                // textContent only, the values come from a file and are never inserted as HTML
+                if (template.console_url) {
+                    hintText.textContent = hintTexts.console.replace('__NAME__', template.name) + ' ';
+                    hintLink.textContent = template.console_url;
+                    hintLink.href        = template.console_url;
+                    hintLink.classList.remove('hidden');
+                } else {
+                    hintText.textContent = hintTexts.plain.replace('__NAME__', template.name);
+                    hintLink.classList.add('hidden');
+                    hintLink.removeAttribute('href');
+                }
+                hint.classList.remove('hidden');
+
+                document.getElementById('client_id').focus();
+            });
         })();
     </script>
 @endsection

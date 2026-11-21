@@ -11,6 +11,7 @@ use Illuminate\Validation\Rule;
 use FlorianBerger\Oidc\Models\OidcProvider;
 use FlorianBerger\Oidc\Services\OidcClient;
 use FlorianBerger\Oidc\Services\OidcDiscoveryService;
+use FlorianBerger\Oidc\Services\ProviderTemplates;
 
 /**
  * Administration of the providers
@@ -19,6 +20,11 @@ use FlorianBerger\Oidc\Services\OidcDiscoveryService;
  * barrier, in case the routes are ever registered without them.
  */
 class OidcProviderManagementController extends Controller {
+    /**
+     * Scopes of a new provider, also used when a template has none
+     */
+    private const DEFAULT_SCOPES = 'openid email profile';
+
     /**
      * @param OidcClient $client
      */
@@ -48,10 +54,16 @@ class OidcProviderManagementController extends Controller {
     /**
      * Form for a new provider
      *
+     * @param ProviderTemplates $templates
+     *
      * @return View
      */
-    public function newView(): View {
-        return view('oidc::admin.form', ['oidcProvider' => new OidcProvider(['scopes' => 'openid email profile', 'active' => true])]);
+    public function newView(ProviderTemplates $templates): View {
+        return view('oidc::admin.form', [
+            'oidcProvider'      => new OidcProvider(['scopes' => self::DEFAULT_SCOPES, 'active' => true]),
+            'providerTemplates' => $templates->all(),
+            'defaultScopes'     => self::DEFAULT_SCOPES,
+        ]);
     }
 
     /**
