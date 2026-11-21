@@ -59,15 +59,16 @@ class ProviderTemplates {
             return [];
         }
 
-        if (!is_array($data) || !array_is_list($data)) {
-            Log::error('OIDC: the file with the provider templates must contain a JSON array.', ['path' => $path]);
+        // An object with the templates in "templates", so the file can link its JSON Schema with "$schema"
+        if (!is_array($data) || array_is_list($data) || !is_array($data['templates'] ?? null) || !array_is_list($data['templates'])) {
+            Log::error('OIDC: the file with the provider templates must contain a JSON object with an array "templates".', ['path' => $path]);
 
             return [];
         }
 
         $templates = [];
         $keys      = [];
-        foreach ($data as $index => $entry) {
+        foreach ($data['templates'] as $index => $entry) {
             $template = $this->normalize($entry);
 
             if ($template === null) {
