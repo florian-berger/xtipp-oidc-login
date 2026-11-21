@@ -96,6 +96,7 @@
                         <div>
                             <label for="button_label" class="label-normal-gray">{{ trans('oidc::ui.admin.form.button_label') }}</label>
                             <input type="text" name="button_label" value="{{ old('button_label', $oidcProvider->button_label) }}" id="button_label" class="input-normal-gray" />
+                            <p class="text-sm text-gray-500">{{ trans('oidc::ui.admin.form.button_label_help') }}</p>
                         </div>
                         <div class="mt-5">
                             <label for="button_color" class="label-normal-gray">{{ trans('oidc::ui.admin.form.button_color') }}</label>
@@ -134,6 +135,7 @@
     {{-- The json directive of Blade splits its argument at commas, so only plain variables are passed to it --}}
     @php
         $jsLabelTemplate   = trans('oidc::ui.login_with', ['provider' => '__PROVIDER__']);
+        $jsNamePlaceholder = \FlorianBerger\Oidc\Models\OidcProvider::BUTTON_LABEL_NAME_PLACEHOLDER;
         $jsTemplates       = (object) collect($providerTemplates ?? [])->keyBy('key')->all();
         $jsDefaultScopes   = $defaultScopes ?? '';
         $jsHintPlain       = trans('oidc::ui.admin.form.template_applied', ['name' => '__NAME__']);
@@ -149,11 +151,16 @@
             var preview       = document.getElementById('oidc_button_preview');
             var previewIcon   = document.getElementById('oidc_button_preview_icon');
             var previewLabel  = document.getElementById('oidc_button_preview_label');
-            var labelTemplate = @json($jsLabelTemplate);
+            var labelTemplate   = @json($jsLabelTemplate);
+            var namePlaceholder = @json($jsNamePlaceholder);
 
             function updatePreview() {
-                var providerName = (labelInput.value.trim() || nameInput.value.trim() || 'Provider');
-                previewLabel.textContent = labelTemplate.replace('__PROVIDER__', providerName);
+                // Same as OidcProvider::buttonText(): the own label with "$Name" replaced, otherwise "Anmelden mit <name>"
+                var providerName = nameInput.value.trim() || 'Provider';
+                var ownLabel     = labelInput.value.trim();
+                previewLabel.textContent = ownLabel
+                    ? ownLabel.split(namePlaceholder).join(providerName)
+                    : labelTemplate.replace('__PROVIDER__', providerName);
 
                 var color = colorText.value.trim();
                 if (/^#[0-9A-Fa-f]{6}$/.test(color)) {

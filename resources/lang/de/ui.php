@@ -90,6 +90,7 @@ return [
             'name'                        => 'Name (intern, z.B. "Google")',
             'slug'                        => 'Slug (Teil der URL, z.B. "google")',
             'button_label'                => 'Beschriftung Login-Button (optional)',
+            'button_label_help'           => 'Wird genau so auf dem Button angezeigt. $Name wird durch den Namen des Anbieters ersetzt, z.B. "Weiter mit $Name". Leer bleibt es bei "Anmelden mit <Name>".',
             'button_color'                => 'Farbe Login-Button (optional)',
             'icon'                        => 'Icon Login-Button (optional, Font Awesome Klasse)',
             'icon_help'                   => 'Klassenname eines kostenlosen Font-Awesome-Icons, z.B. "fa-brands fa-twitch".',

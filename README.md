@@ -104,7 +104,6 @@ The dropdown **Vorlage** on the create page (not on the edit page) is filled fro
             "issuer": "https://id.twitch.tv/oauth2",
             "scopes": "openid user:read:email",
             "extra_authorize_params": "{\"claims\":\"{\\\"id_token\\\":{\\\"email\\\":null,\\\"email_verified\\\":null}}\"}",
-            "button_label": "Twitch",
             "button_color": "#9146FF",
             "icon": "fa-brands fa-twitch",
             "console_url": "https://dev.twitch.tv/console/apps"

@@ -59,12 +59,32 @@ class OidcProvider extends Model {
     }
 
     /**
-     * The name to show on buttons
+     * The name to show in texts, e.g. "verknüpft mit <name>"
      *
      * @return string
      */
     public function displayName(): string {
-        return $this->button_label ?: $this->name;
+        return $this->name;
+    }
+
+    /**
+     * Placeholder in the label of the button, replaced with the name (e.g. "Weiter mit $Name")
+     */
+    public const BUTTON_LABEL_NAME_PLACEHOLDER = '$Name';
+
+    /**
+     * The text of the login button: the own label with "$Name" replaced by the name, otherwise "Anmelden mit <name>"
+     *
+     * @return string
+     */
+    public function buttonText(): string {
+        $label = trim((string) $this->button_label);
+
+        if ($label === '') {
+            return trans('oidc::ui.login_with', ['provider' => $this->name]);
+        }
+
+        return str_replace(self::BUTTON_LABEL_NAME_PLACEHOLDER, (string) $this->name, $label);
     }
 
     /**

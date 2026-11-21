@@ -87,10 +87,10 @@
                     ]
                 },
                 "button_label": {
-                    "description": "Label of the login button (\"Anmelden mit <label>\"). Without it, the name is used.",
+                    "description": "Complete text of the login button, shown as written; $Name is replaced with the name. Without it, the button says \"Anmelden mit <name>\".",
                     "type": ["string", "null"],
                     "maxLength": 255,
-                    "examples": ["Twitch"]
+                    "examples": ["Weiter mit $Name", "Mit Twitch einloggen"]
                 },
                 "button_color": {
                     "description": "Background color of the login button as #RRGGBB. Missing or invalid: the neutral gray #6B7280.",
