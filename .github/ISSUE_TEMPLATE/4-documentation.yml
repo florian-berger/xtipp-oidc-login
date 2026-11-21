@@ -1,5 +1,5 @@
 name: Documentation
-description: Something is wrong, missing or unclear in the README, the OpenAPI description or the Swagger UI.
+description: Something is wrong, missing or unclear in the README or other documentation.
 title: "[Docs]: "
 labels: ["documentation"]
 body:
