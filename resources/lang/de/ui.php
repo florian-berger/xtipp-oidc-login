@@ -3,14 +3,19 @@ return [
     'login_with' => 'Anmelden mit :provider',
     'or'         => 'oder',
 
+    'menu' => [
+        'admin'       => 'OIDC-Anbieter',
+        'connections' => 'Verknüpfte Konten',
+    ],
+
     'message' => [
         'invalid_flow'              => 'Die Anmeldung ist ungültig oder abgelaufen. Bitte versuche es erneut.',
         'provider_error'            => 'Die Anmeldung beim gewählten Anbieter ist fehlgeschlagen. Bitte versuche es erneut.',
-        'email_exists'              => 'Diese E-Mail-Adresse wird bereits verwendet. Bitte melde dich mit deinem bestehenden Konto an und verbinde diesen Anbieter anschließend unter „Verbindungen“ (/oidc/verbindungen).',
-        'connected'                 => 'Dein Konto wurde erfolgreich mit :provider verbunden.',
-        'already_connected'         => 'Dieser Anbieter ist bereits mit deinem Konto verbunden.',
-        'already_linked_elsewhere'  => 'Dieses :provider-Konto ist bereits mit einem anderen Konto auf dieser Seite verbunden.',
-        'disconnected'              => 'Die Verbindung wurde getrennt.',
+        'email_exists'              => 'Diese E-Mail-Adresse wird bereits verwendet. Bitte melde dich mit deinem bestehenden Konto an und verknüpfe diesen Anbieter anschließend im Profilmenü unter „Verknüpfte Konten“.',
+        'connected'                 => 'Dein Konto wurde erfolgreich mit :provider verknüpft.',
+        'already_connected'         => 'Dieser Anbieter ist bereits mit deinem Konto verknüpft.',
+        'already_linked_elsewhere'  => 'Dieses :provider-Konto ist bereits mit einem anderen Konto auf dieser Seite verknüpft.',
+        'disconnected'              => 'Die Verknüpfung wurde aufgehoben.',
         'registration_disabled'     => 'Die Registrierung neuer Konten ist derzeit deaktiviert.',
     ],
 
@@ -31,15 +36,15 @@ return [
     ],
 
     'connections' => [
-        'sidename'         => 'Verbindungen',
-        'linked-title'     => 'Verbundene Anbieter',
-        'none-linked'      => 'Du hast noch keinen Anbieter verbunden.',
-        'connect-title'    => 'Anbieter verbinden',
+        'sidename'         => 'Verknüpfte Konten',
+        'linked-title'     => 'Verknüpfte Anbieter',
+        'none-linked'      => 'Du hast noch keinen Anbieter verknüpft.',
+        'connect-title'    => 'Anbieter verknüpfen',
         'none-connectable' => 'Es sind aktuell keine weiteren Anbieter verfügbar.',
         'disconnect-hint'  => 'Hast du kein eigenes Passwort, kannst du es jederzeit über „Passwort vergessen?“ auf der Anmeldeseite festlegen.',
         'btn' => [
-            'disconnect' => 'Trennen',
-            'connect'    => 'Verbinden',
+            'disconnect' => 'Verknüpfung aufheben',
+            'connect'    => 'Verknüpfen',
         ],
     ],
 
@@ -61,7 +66,7 @@ return [
             'edit'              => 'Bearbeiten',
             'delete'            => 'Löschen',
             'delete_title'      => 'Anbieter löschen',
-            'delete_confirm'    => 'Soll der Anbieter „:name“ mit allen Verbindungen der Benutzer gelöscht werden?',
+            'delete_confirm'    => 'Soll der Anbieter „:name“ mit allen Verknüpfungen der Benutzer gelöscht werden?',
         ],
         'form' => [
             'sidename-new'                => 'Neuer OIDC-Anbieter',

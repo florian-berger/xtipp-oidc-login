@@ -2,16 +2,11 @@
 @extends('layouts.app')
 @section('title', trans($isNew ? 'oidc::ui.admin.form.sidename-new' : 'oidc::ui.admin.form.sidename-edit'))
 @section('content')
+    @include('oidc::partials.styles')
     <div class="view-wrapper" data-view="plugin-oidc-form">
         <div class="mb-10 text-right">
             <a href="{{ route('plugin-oidc.admin.index') }}" title="{{ trans('oidc::ui.admin.form.back_overview') }}" class="btn-normal">{{ trans('oidc::ui.admin.form.back_overview') }}</a>
         </div>
-
-        @if (session()->has('message'))
-            <div class="success-message my-2">
-                {{ session('message') }}
-            </div>
-        @endif
 
         @if (count($errors) > 0)
             <div class="error-message">
@@ -72,7 +67,7 @@
             </div>
 
             <div class="mt-8">
-                <h2 class="text-lg font-bold">{{ trans('oidc::ui.admin.form.appearance') }}</h2>
+                <h2 class="font-bold" style="font-size: 1.125rem; line-height: 1.75rem;">{{ trans('oidc::ui.admin.form.appearance') }}</h2>
                 <hr class="mt-1 mb-5" />
 
                 <div class="grid grid-cols-1 md:grid-cols-2 md:gap-5">
@@ -96,7 +91,7 @@
                     </div>
                     <div>
                         <span class="label-normal-gray">{{ trans('oidc::ui.admin.form.preview') }}</span>
-                        <span id="oidc_button_preview" class="btn-normal inline-block">
+                        <span id="oidc_button_preview" class="btn-normal plugin-oidc-button inline-block">
                             <i id="oidc_button_preview_icon" class="hidden mr-2"></i>
                             <span id="oidc_button_preview_label"></span>
                         </span>
@@ -105,14 +100,17 @@
             </div>
 
             <div class="mt-4 flex flex-wrap sm:justify-end">
-                <div class="mt-1 order-1 sm:order-2 w-full sm:w-1/5">
-                    <button type="submit" class="btn-normal bg-emerald-500">{{ trans($isNew ? 'oidc::ui.admin.form.create' : 'oidc::ui.admin.form.save') }}</button>
+                <div class="mt-1 sm:order-2">
+                    <button type="submit" class="btn-normal bg-emerald-500">
+                        <i class="fa fa-check mr-1" aria-hidden="true"></i>
+                        {{ trans($isNew ? 'oidc::ui.admin.form.create' : 'oidc::ui.admin.form.save') }}
+                    </button>
                 </div>
             </div>
         </form>
     </div>
 
-    <script>
+    <script nonce="{{ csp_nonce() }}">
         (function () {
             var nameInput     = document.getElementById('name');
             var labelInput    = document.getElementById('button_label');

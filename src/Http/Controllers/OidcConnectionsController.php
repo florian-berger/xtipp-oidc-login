@@ -47,4 +47,16 @@ class OidcConnectionsController extends Controller {
         return redirect()->route('plugin-oidc.connections')
             ->with('message-success', trans('oidc::ui.message.disconnected'));
     }
+
+    /**
+     * Old address "/oidc/verbindungen" (up to plugin version 0.0.1), kept for bookmarks and links
+     *
+     * Redirects to the named route, so the address is complete, also when xTIPP is installed in a subfolder. The
+     * new address checks the login itself.
+     *
+     * @return RedirectResponse
+     */
+    public function legacyRedirect(): RedirectResponse {
+        return redirect()->route('plugin-oidc.connections', [], 301);
+    }
 }

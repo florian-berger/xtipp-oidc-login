@@ -8,9 +8,12 @@ use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Mail\Mailable;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
+use Throwable;
 use FlorianBerger\Oidc\Models\OidcIdentity;
 use FlorianBerger\Oidc\Models\OidcProvider;
 use FlorianBerger\Oidc\Services\Registration;
@@ -123,16 +126,22 @@ class OidcCompleteProfileController extends Controller {
             $userDataArray['name']      = $request->input('name');
         }
 
-        if (xtipp_config('email-reminder.enable-by-default', '0') === '1') {
+        // Same defaults as the registration of xTIPP, the general settings are strings in the config
+        if (config('xtipp.email-reminder.enable-by-default') === '1') {
             $userDataArray['email_reminder'] = 1;
         }
 
-        if (xtipp_config('email-tip-confirmation.enable-by-default', '0') === '1') {
+        if (config('xtipp.email-tip-confirmation.enable-by-default') === '1') {
             $userDataArray['email_tip_confirmation'] = 1;
         }
 
-        if (xtipp_config('email-message-notification.enable-by-default', '0') === '1') {
+        if (config('xtipp.email-message-notification.enable-by-default') === '1') {
             $userDataArray['email_message_notification'] = 1;
+        }
+
+        // The email with the ranking must be available for the users and enabled by default
+        if (config('xtipp.ranking-mail.enable') === '1' && config('xtipp.ranking-mail.enable-by-default') === '1') {
+            $userDataArray['email_ranking'] = 1;
         }
 
         $user = DB::transaction(function () use ($userDataArray, $oidcProvider, $pending) {
@@ -160,7 +169,7 @@ class OidcCompleteProfileController extends Controller {
             return $user;
         });
 
-        Mail::to($user->email)->send(new WelcomeMail($user));
+        $this->sendMail($user, new WelcomeMail($user));
 
         $allAdmins = User::where('email_no_admin_notification', 0)
             ->whereHas('roles.role', function ($query) {
@@ -169,13 +178,30 @@ class OidcCompleteProfileController extends Controller {
             ->where('active', '1')
             ->get();
         foreach ($allAdmins as $adminUser) {
-            Mail::to($adminUser->email)->send(new NewUserMail($user));
+            $this->sendMail($adminUser, new NewUserMail($user));
         }
 
         $request->session()->forget('plugin-oidc.pending');
         $request->session()->flash('message-success', trans('messages.register.success'));
 
         return redirect()->route('login');
+    }
+
+    /**
+     * Send a mail and log a failure, like the registration of xTIPP: the account is already created and the visitor
+     * can not do anything about it
+     *
+     * @param User     $recipient
+     * @param Mailable $mail
+     *
+     * @return void
+     */
+    private function sendMail(User $recipient, Mailable $mail): void {
+        try {
+            Mail::to($recipient->email)->send($mail);
+        } catch (Throwable $exception) {
+            Log::error('Plugin OIDC - complete profile: ' . class_basename($mail) . ' to user ' . $recipient->id . ' failed: ' . $exception->getMessage());
+        }
     }
 
     /**

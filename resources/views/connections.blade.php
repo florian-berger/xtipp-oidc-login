@@ -1,14 +1,6 @@
 @extends('layouts.app')
 @section('title', trans('oidc::ui.connections.sidename'))
 @section('content')
-    @foreach (['message-success' => 'success-message', 'message-info' => 'success-message', 'message-danger' => 'error-message'] as $key => $class)
-        @if (session()->has($key))
-            <div class="{{ $class }} my-2">
-                {{ session($key) }}
-            </div>
-        @endif
-    @endforeach
-
     <div class="section-title">
         {{ trans('oidc::ui.connections.linked-title') }}
     </div>
@@ -22,7 +14,9 @@
                     <div>{{ $identity->provider->displayName() }}</div>
                     <form method="POST" action="{{ route('plugin-oidc.connections.disconnect', ['identity' => $identity->id]) }}">
                         {{ csrf_field() }}
-                        <button type="submit" class="btn-small">{{ trans('oidc::ui.connections.btn.disconnect') }}</button>
+                        <button type="submit" class="btn-small bg-red-500">
+                            {{ trans('oidc::ui.connections.btn.disconnect') }}
+                        </button>
                     </form>
                 </div>
             @endforeach
@@ -43,7 +37,7 @@
                 <div class="flex justify-between items-center p-2 gap-2 odd:bg-slate-200">
                     <div>{{ $provider->displayName() }}</div>
                     <div>
-                        <a href="{{ route('plugin-oidc.redirect', ['provider' => $provider->slug, 'intent' => 'link']) }}" class="btn-small">
+                        <a href="{{ route('plugin-oidc.redirect', ['provider' => $provider->slug, 'intent' => 'link']) }}" class="btn-small bg-emerald-500">
                             {{ trans('oidc::ui.connections.btn.connect') }}
                         </a>
                     </div>

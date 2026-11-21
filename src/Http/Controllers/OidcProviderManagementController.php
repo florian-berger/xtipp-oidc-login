@@ -71,7 +71,7 @@ class OidcProviderManagementController extends Controller {
         $provider->active                 = $request->boolean('active');
         $provider->save();
 
-        session()->flash('message', trans('oidc::ui.admin.success.create'));
+        session()->flash('message-success', trans('oidc::ui.admin.success.create'));
 
         return redirect()->route('plugin-oidc.admin.index');
     }
@@ -114,7 +114,7 @@ class OidcProviderManagementController extends Controller {
         // The endpoints may have changed
         $discovery->forget($provider);
 
-        session()->flash('message', trans('oidc::ui.admin.success.save'));
+        session()->flash('message-success', trans('oidc::ui.admin.success.save'));
 
         return back();
     }
@@ -135,7 +135,7 @@ class OidcProviderManagementController extends Controller {
         $discovery->forget($provider);
         $provider->delete();
 
-        session()->flash('message', trans('oidc::ui.admin.success.delete'));
+        session()->flash('message-success', trans('oidc::ui.admin.success.delete'));
 
         return back();
     }

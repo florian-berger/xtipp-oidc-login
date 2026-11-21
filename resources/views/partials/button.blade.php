@@ -1,6 +1,3 @@
-<style>
-    .plugin-oidc-button:hover { filter: brightness(1.10); }
-</style>
 <div>
     <a
         href="{{ route('plugin-oidc.redirect', ['provider' => $oidcProvider->slug]) }}"
