@@ -1,0 +1,26 @@
+{
+    "$schema": "./provider-templates.schema.json",
+    "templates": [
+        {
+            "key": "twitch",
+            "name": "Twitch",
+            "slug": "twitch",
+            "issuer": "https://id.twitch.tv/oauth2",
+            "scopes": "openid user:read:email",
+            "extra_authorize_params": "{\"claims\":\"{\\\"id_token\\\":{\\\"email\\\":null,\\\"email_verified\\\":null}}\"}",
+            "button_color": "#9146FF",
+            "icon": "fa-brands fa-twitch",
+            "console_url": "https://dev.twitch.tv/console/apps"
+        },
+        {
+            "key": "google",
+            "name": "Google",
+            "slug": "google",
+            "issuer": "https://accounts.google.com",
+            "scopes": "openid email profile",
+            "button_color": "#4285F4",
+            "icon": "fa-brands fa-google",
+            "console_url": "https://console.cloud.google.com/apis/credentials"
+        }
+    ]
+}

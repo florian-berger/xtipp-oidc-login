@@ -29,7 +29,7 @@ The interface of the plugin is in German, like xTIPP itself.
    - **ZIP upload:** upload the ZIP of a [release](https://github.com/florian-berger/xtipp-oidc-login/releases) in the admin area under **Konfiguration → Erweiterungen**. The upload must be enabled on the server with `XTIPP_PLUGIN_UPLOAD=1` in the `.env` of xTIPP.
    - **FTP:** upload the folder to `plugins/oidc/` of your xTIPP installation. Check that **all files** arrived.
 2. Activate it in the admin area under **Konfiguration → Erweiterungen**. This runs the migration, which creates the database tables.
-3. Open **Konfiguration → OIDC-Anbieter** (`/admin/oidc-anbieter`) and create a provider. Use the button in the list to copy its redirect URL (`https://your-site/oidc/<slug>/callback`) and register it at the provider.
+3. Open **Konfiguration → OIDC-Anbieter** (`/admin/oidc-anbieter`) and create a provider (pick a **template** ("Vorlage") if there is one for your provider). Use the button in the list to copy its redirect URL (`https://your-site/oidc/<slug>/callback`) and register it at the provider.
 4. Optional: allow new accounts via OIDC (see [Settings](#settings)).
 
 The buttons of all active providers then appear on the login page of xTIPP.
@@ -89,6 +89,37 @@ The README of xTIPP's plugin system forbids changing xTIPP files and overriding 
 - xTIPP sends a Content-Security-Policy. The scripts of the admin pages are inline scripts with `csp_nonce()`, and event attributes like `onclick` are not used.
 - No Composer packages, tests or compiled CSS (the hover effect of the buttons uses a small inline style).
 
+## Provider templates
+
+The dropdown **Vorlage** on the create page (not on the edit page) is filled from `resources/provider-templates.json` and lists the templates sorted by name. Picking a template fills the fields directly, without a reload, moves the cursor to the Client-ID and shows where to get Client-ID and Client-Secret. Every value can still be changed afterwards, and Client-ID and Client-Secret are never part of a template.
+
+```json
+{
+    "$schema": "./provider-templates.schema.json",
+    "templates": [
+        {
+            "key": "twitch",
+            "name": "Twitch",
+            "slug": "twitch",
+            "issuer": "https://id.twitch.tv/oauth2",
+            "scopes": "openid user:read:email",
+            "extra_authorize_params": "{\"claims\":\"{\\\"id_token\\\":{\\\"email\\\":null,\\\"email_verified\\\":null}}\"}",
+            "button_color": "#9146FF",
+            "icon": "fa-brands fa-twitch",
+            "console_url": "https://dev.twitch.tv/console/apps"
+        }
+    ]
+}
+```
+
+- `key` (letters, digits, `-` and `_`, unique) and `name` are required, all other fields are optional. A missing field is emptied when the template is applied; `scopes` falls back to `openid email profile`, and a missing or invalid `button_color` (not `#RRGGBB`) to the neutral gray `#6B7280`.
+- The JSON Schema `resources/provider-templates.schema.json` describes all fields. The file links it with `$schema`, so editors like VS Code or PhpStorm check the file while editing it.
+- `extra_authorize_params` can be a JSON string as above or a JSON object.
+- `console_url` must start with `https://`. It is shown as a link to the developer console of the provider.
+- An invalid entry is skipped. If the file is missing or is not a JSON object with an array `templates`, the dropdown is hidden. Both are logged in the log of Laravel, and the create page keeps working.
+
+Changes in the file are overwritten by an update of the plugin, so send new templates as a pull request. Make sure that the configuration you suggest as a template is tested!
+
 ## Removing the plugin
 
 Deactivating the plugin does **not** run `down()` of the migration, and tables and settings stay in the database.
@@ -115,24 +146,8 @@ plugins/oidc/
     ├── OidcServiceProvider.php
     ├── Http/Controllers/
     ├── Models/
-    └── Services/                OidcClient, OidcDiscoveryService, IdTokenVerifier, Registration
+    └── Services/                OidcClient, OidcDiscoveryService, IdTokenVerifier, Registration, ProviderTemplates
 ```
-
-## Tested providers
-
-This area contains a list of all providers that I tested during development.
-
-### Twitch
-
-Create a application at https://dev.twitch.tv/console/apps and use the information to create the OIDC provider in xTIPP.
-
-| Field | Value |
-| ----- | ----- |
-| Issuer-URL | `https://id.twitch.tv/oauth2` |
-| Client-ID | `<YOUR_CLIENT_ID>` |
-| Client-Secret | `<YOUR_CLIENT_SECRET>` |
-| Scopes | `openid user:read:email` |
-| Zusätzliche Authorize-Parameter | `{"claims":"{\"id_token\":{\"email\":null,\"email_verified\":null}}"}` |
 
 ## AI disclaimer
 

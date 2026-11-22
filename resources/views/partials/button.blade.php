@@ -7,6 +7,6 @@
         @if ($oidcProvider->icon)
             <i class="{{ $oidcProvider->icon }} mr-2"></i>
         @endif
-        {{ trans('oidc::ui.login_with', ['provider' => $oidcProvider->displayName()]) }}
+        {{ $oidcProvider->buttonText() }}
     </a>
 </div>

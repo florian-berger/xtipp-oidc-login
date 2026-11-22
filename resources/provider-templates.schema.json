@@ -1,0 +1,118 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "urn:xtipp-oidc-login:provider-templates:v1",
+    "title": "OIDC provider templates",
+    "description": "Templates for the dropdown \"Vorlage\" on the page to create an OIDC provider (resources/provider-templates.json). A template holds only the values that are the same for every installation, never the Client-ID or the Client-Secret. The key of each template must be unique; JSON Schema cannot check this, the plugin skips a template with a key that is already used.",
+    "type": "object",
+    "required": ["templates"],
+    "additionalProperties": false,
+    "properties": {
+        "$schema": {
+            "description": "Link to this schema, for editors. Ignored by the plugin.",
+            "type": "string"
+        },
+        "templates": {
+            "description": "The templates. The dropdown is sorted by name, not by this order.",
+            "type": "array",
+            "items": {
+                "$ref": "#/$defs/template"
+            }
+        }
+    },
+    "$defs": {
+        "template": {
+            "type": "object",
+            "description": "One template. All fields except \"key\" and \"name\" are optional: a missing field is emptied when the template is applied, \"scopes\" falls back to \"openid email profile\" and \"button_color\" to the neutral gray #6B7280.",
+            "required": ["key", "name"],
+            "additionalProperties": false,
+            "properties": {
+                "key": {
+                    "description": "Unique identifier of the template.",
+                    "type": "string",
+                    "pattern": "^[a-zA-Z0-9_-]+$",
+                    "examples": ["twitch"]
+                },
+                "name": {
+                    "description": "Shown in the dropdown and filled into the field \"Name\". The dropdown is sorted by it.",
+                    "type": "string",
+                    "pattern": "\\S",
+                    "maxLength": 255,
+                    "examples": ["Twitch"]
+                },
+                "slug": {
+                    "description": "Part of the URLs of the provider, e.g. /oidc/<slug>/callback.",
+                    "type": ["string", "null"],
+                    "pattern": "^[a-zA-Z0-9_-]*$",
+                    "maxLength": 255,
+                    "examples": ["twitch"]
+                },
+                "issuer": {
+                    "description": "Issuer URL of the provider, exactly as in its discovery document (/.well-known/openid-configuration).",
+                    "type": ["string", "null"],
+                    "format": "uri",
+                    "pattern": "^https://",
+                    "maxLength": 255,
+                    "examples": ["https://id.twitch.tv/oauth2"]
+                },
+                "scopes": {
+                    "description": "Scopes, separated by spaces. Must contain \"openid\".",
+                    "type": ["string", "null"],
+                    "pattern": "(^|\\s)openid(\\s|$)",
+                    "maxLength": 255,
+                    "examples": ["openid email profile", "openid user:read:email"]
+                },
+                "extra_authorize_params": {
+                    "description": "Additional parameters for the authorization URL, as a JSON object, either directly or as a string that contains the JSON object.",
+                    "oneOf": [
+                        {
+                            "type": "string",
+                            "contentMediaType": "application/json",
+                            "pattern": "^\\s*(\\{[\\s\\S]*\\})?\\s*$"
+                        },
+                        {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": ["string", "number", "boolean"]
+                            }
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "examples": [
+                        "{\"claims\":\"{\\\"id_token\\\":{\\\"email\\\":null,\\\"email_verified\\\":null}}\"}",
+                        {
+                            "claims": "{\"id_token\":{\"email\":null,\"email_verified\":null}}"
+                        }
+                    ]
+                },
+                "button_label": {
+                    "description": "Complete text of the login button, shown as written; $Name is replaced with the name. Without it, the button says \"Anmelden mit <name>\".",
+                    "type": ["string", "null"],
+                    "maxLength": 255,
+                    "examples": ["Weiter mit $Name", "Mit Twitch einloggen"]
+                },
+                "button_color": {
+                    "description": "Background color of the login button as #RRGGBB. Missing or invalid: the neutral gray #6B7280.",
+                    "type": ["string", "null"],
+                    "pattern": "^#[0-9A-Fa-f]{6}$",
+                    "examples": ["#9146FF"]
+                },
+                "icon": {
+                    "description": "Classes of a free Font Awesome icon.",
+                    "type": ["string", "null"],
+                    "pattern": "^[a-zA-Z0-9\\-\\s]+$",
+                    "maxLength": 100,
+                    "examples": ["fa-brands fa-twitch"]
+                },
+                "console_url": {
+                    "description": "Developer console of the provider, where the admin creates the application and gets Client-ID and Client-Secret. Shown as a link after the template is applied.",
+                    "type": ["string", "null"],
+                    "format": "uri",
+                    "pattern": "^https://",
+                    "examples": ["https://dev.twitch.tv/console/apps"]
+                }
+            }
+        }
+    }
+}
