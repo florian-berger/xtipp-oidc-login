@@ -3,9 +3,9 @@ contact_links:
   - name: Security vulnerability
     url: https://github.com/florian-berger/xtipp-oidc-login/security/advisories/new
     about: Please report security problems (for example access to data of other users, bypass authentication, ...) privately, not as a public issue.
-#  - name: Question / help
-#    url: TODO
-#    about: Questions about installation or usage are answered fastest in the plugin thread in the xTIPP forum.
+  - name: Question / help
+    url: https://xcript.de/forum/index.php?thread/9480-oidc-anmeldung-version-0-1-0-xtipp-1-0-36/
+    about: Questions about installation or usage are answered fastest in the plugin thread in the xTIPP forum.
   - name: Alternative questions
     url: https://ultgmng.de/discord
     about: If you don't want to use the xTIPP forum, you can also ask questions about this plugin on Discord.
