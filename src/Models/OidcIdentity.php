@@ -18,7 +18,6 @@ class OidcIdentity extends Model {
         'oidc_provider_id',
         'subject',
         'email',
-        'raw_claims',
         'last_login_at',
     ];
 
@@ -27,7 +26,6 @@ class OidcIdentity extends Model {
      */
     protected function casts(): array {
         return [
-            'raw_claims'    => 'array',
             'last_login_at' => 'datetime',
         ];
     }

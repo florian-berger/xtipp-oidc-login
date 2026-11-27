@@ -162,7 +162,6 @@ class OidcCompleteProfileController extends Controller {
                 'oidc_provider_id' => $oidcProvider->id,
                 'subject'          => $pending['subject'],
                 'email'            => $user->email,
-                'raw_claims'       => $pending['raw_claims'],
                 'last_login_at'    => now(),
             ]);
 

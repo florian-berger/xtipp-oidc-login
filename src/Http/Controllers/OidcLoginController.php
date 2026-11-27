@@ -173,7 +173,6 @@ class OidcLoginController extends Controller {
             'oidc_provider_id' => $oidcProvider->id,
             'subject'          => $claims['sub'],
             'email'            => $claims['email'] ?? null,
-            'raw_claims'       => $claims,
             'last_login_at'    => now(),
         ]);
 
@@ -218,7 +217,6 @@ class OidcLoginController extends Controller {
             'name'        => $claims['name'] ?? null,
             'given_name'  => $claims['given_name'] ?? null,
             'family_name' => $claims['family_name'] ?? null,
-            'raw_claims'  => $claims,
         ]);
 
         return redirect()->route('plugin-oidc.complete_profile.show');
@@ -246,7 +244,6 @@ class OidcLoginController extends Controller {
         $identity->update([
             'last_login_at' => now(),
             'email'         => $claims['email'] ?? $identity->email,
-            'raw_claims'    => $claims,
         ]);
 
         return redirect('/home');
