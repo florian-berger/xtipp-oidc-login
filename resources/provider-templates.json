@@ -36,7 +36,7 @@
             "name": "Discord",
             "slug": "discord",
             "issuer": "https://discord.com",
-            "scopes": "openid email",
+            "scopes": "openid identify email",
             "button_color": "#5865F2",
             "icon": "fa-brands fa-discord",
             "console_url": "https://discord.com/developers/applications"
