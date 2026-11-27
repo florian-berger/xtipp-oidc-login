@@ -21,6 +21,25 @@
             "button_color": "#4285F4",
             "icon": "fa-brands fa-google",
             "console_url": "https://console.cloud.google.com/apis/credentials"
+        },
+        {
+            "key": "authentik",
+            "name": "Authentik",
+            "slug": "authentik",
+            "issuer": "https://<YOUR_DOMAIN>/application/o/<SLUG>/",
+            "scopes": "openid email profile",
+            "button_color": "#FD4B2D",
+            "icon": "fa fa-unlock-keyhole"
+        },
+        {
+            "key": "discord",
+            "name": "Discord",
+            "slug": "discord",
+            "issuer": "https://discord.com",
+            "scopes": "openid email",
+            "button_color": "#5865F2",
+            "icon": "fa-brands fa-discord",
+            "console_url": "https://discord.com/developers/applications"
         }
     ]
 }
