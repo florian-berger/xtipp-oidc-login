@@ -75,7 +75,7 @@ The providers themselves are not plugin settings, because a setting is limited t
 - **ID token:** `firebase/php-jwt` and `league/oauth2-client` are not available for plugins, so the token is verified in `src/Services/IdTokenVerifier.php` with OpenSSL. Only RS256/384/512 and ES256/384/512 are accepted, never `none` or HS*. The keys always come from the JWKS of the provider (reloaded once on an unknown key). Checked claims are `iss`, `aud`, `nonce`, `sub`, `exp` and `nbf`, with 60 seconds of tolerance.
 - **No account takeover:** an email address that exists in xTIPP is refused, whether or not the provider reports it as verified. Deleted accounts count too, and the comparison ignores the case. A provider can only be added to an account by its owner while logged in.
 - **Client secret:** stored with the `encrypted` cast of Laravel (AES-256-CBC with the `APP_KEY`). A database dump alone does not reveal it; a dump together with the `.env` does. If a secret leaks, create a new one at the provider.
-- **Stored data:** the claims of each login are stored in `plugin_oidc_identities.raw_claims` as plain JSON (name, email, subject). No ID token and no access token is stored.
+- **Stored data:** per linked provider, `plugin_oidc_identities` keeps only the user, the provider, the subject (`sub`), the email address of the last login and the time of the last login. The other claims of the ID token (name, avatar, locale, ...) are used once to prefill the registration form and are not stored. No ID token, access token or refresh token is stored.
 - **Logging:** a rejected callback logs the provider, the reason and flags, but never the `state` or any token.
 - The session id is regenerated on login, and all state-changing routes are protected by CSRF.
 - Routes of the flow are rate limited (20 requests per minute).
@@ -126,9 +126,9 @@ Deactivating the plugin does **not** run `down()` of the migration, and tables a
 To remove everything:
 
 1. Deactivate the plugin.
-2. Optional: `php artisan migrate:rollback --path=plugins/oidc/database/migrations --realpath --force` (drops both tables and all connections; run it before deleting the folder).
+2. Optional: `php artisan migrate:reset --path=plugins/oidc/database/migrations --realpath --force` (rolls back all migrations of the plugin, which drops both tables and all connections; run it before deleting the folder).
 3. Delete `plugins/oidc/`.
-4. If you kept the tables and want a clean state, remove the migration row from the `migrations` table and the setting `plugin.oidc.oidc_allow_registration` from `xtipp_config_general`.
+4. If you kept the tables and want a clean state, remove the migration rows of the plugin from the `migrations` table and the setting `plugin.oidc.oidc_allow_registration` from `xtipp_config_general`.
 
 Users who registered only through a provider have no password; they can set their own with "Passwort vergessen?" or in their profile area.
 
