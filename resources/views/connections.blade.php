@@ -22,7 +22,12 @@
         <div class="mt-2">
             @foreach ($linkedIdentities as $identity)
                 <div class="flex justify-between items-center p-2 gap-2 odd:bg-slate-200">
-                    <div>{{ $identity->provider->displayName() }}</div>
+                    <div>
+                        {{ $identity->provider->displayName() }}
+                        @if ($identity->created_at)
+                            <i>{{ trans('oidc::ui.connections.linked-since', ['date' => $identity->created_at->format('d.m.Y, H:i')]) }}</i>
+                        @endif
+                    </div>
                     <form method="POST" action="{{ route('plugin-oidc.connections.disconnect', ['identity' => $identity->id]) }}">
                         {{ csrf_field() }}
                         <button type="submit" class="btn-small bg-red-500">

@@ -49,6 +49,7 @@ return [
         ],
         'linked-title'     => 'Verknüpfte Anbieter',
         'none-linked'      => 'Du hast noch keinen Anbieter verknüpft.',
+        'linked-since'     => '(verknüpft seit :date)',
         'connect-title'    => 'Anbieter verknüpfen',
         'none-connectable' => 'Es sind aktuell keine weiteren Anbieter verfügbar.',
         'disconnect-hint'  => 'Hast du dich über einen Dienst registriert, hast du noch kein eigenes Passwort. Lege es vor dem Aufheben deiner letzten Verknüpfung über „Passwort vergessen?“ auf der Anmeldeseite fest, sonst kannst du dich erst danach wieder anmelden.',

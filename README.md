@@ -44,7 +44,7 @@ To update the plugin, upload the ZIP of the new version the same way (the old ve
 | `/oidc/{slug}/redirect` | everyone | Starts the flow (`?intent=link` to connect, when logged in) |
 | `/oidc/{slug}/callback` | everyone | Redirect URL, to be registered at the provider |
 | `/oidc/profil-vervollstaendigen` | everyone | Last step of a new registration |
-| `/oidc/verknuepfte-konten` | logged-in users | Link and unlink providers ("Verknüpfte Konten") |
+| `/oidc/verknuepfte-konten` | logged-in users | Link and unlink providers, shows since when each provider is linked ("Verknüpfte Konten") |
 | `/admin/oidc-anbieter` | **administrators only** | Manage the providers |
 
 The admin routes use the same middleware as the admin area of xTIPP (`auth`, `hasRole:Admin`, `last_activity`). The
