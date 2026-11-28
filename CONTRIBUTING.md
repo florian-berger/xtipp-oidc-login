@@ -4,7 +4,7 @@ Thank you for helping to improve the OIDC login for xTIPP! This file explains ho
 
 ## Before you start
 
-- **Security problems are never reported as public issues.** Use a [private security advisory](https://github.com/florian-berger/xtipp-oidc-login/security/advisories/new) instead, for example for a way to log in as another user, to bypass the token verification or to read data of other users.
+- **Security problems are never reported as public issues.** Use a [private security advisory](https://github.com/florian-berger/xtipp-oidc-login/security/advisories/new) instead, for example for a way to log in as another user, to bypass the token verification or to read data of other users. The [security policy](SECURITY.md) explains what a report should contain, which versions are supported and what happens after you report.
 - **Questions about installation or usage** are answered fastest in the plugin thread in the xTIPP forum or on [Discord](https://ultgmng.de/discord).
 - **Bugs of xTIPP itself** (they also happen without this plugin) belong to the [xTIPP developers](https://xcript.de/).
 - Search the [existing issues](https://github.com/florian-berger/xtipp-oidc-login/issues) first. A comment with more details on an existing issue helps more than a duplicate.

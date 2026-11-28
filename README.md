@@ -73,6 +73,9 @@ The providers themselves are not plugin settings, because a setting is limited t
 
 ## Security
 
+> [!NOTE]
+> Found a security problem? Please do not open a public issue. How to report it privately, which versions are supported and what is in scope is described in the [security policy](SECURITY.md).
+
 - **ID token:** `firebase/php-jwt` and `league/oauth2-client` are not available for plugins, so the token is verified in `src/Services/IdTokenVerifier.php` with OpenSSL. Only RS256/384/512 and ES256/384/512 are accepted, never `none` or HS*. The keys always come from the JWKS of the provider (reloaded once on an unknown key). Checked claims are `iss`, `aud`, `nonce`, `sub`, `exp` and `nbf`, with 60 seconds of tolerance.
 - **No account takeover:** an email address that exists in xTIPP is refused, whether or not the provider reports it as verified. Deleted accounts count too, and the comparison ignores the case. A provider can only be added to an account by its owner while logged in.
 - **Client secret:** stored with the `encrypted` cast of Laravel (AES-256-CBC with the `APP_KEY`). A database dump alone does not reveal it; a dump together with the `.env` does. If a secret leaks, create a new one at the provider.
