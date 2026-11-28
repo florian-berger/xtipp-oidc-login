@@ -8,6 +8,11 @@ A plugin for [xTIPP](https://xcript.de/), the tippgame software, that adds sign-
 
 The interface of the plugin is in German, like xTIPP itself.
 
+> [!IMPORTANT]
+> - **This is security-relevant code!** It handles logins and creates accounts. The verification of the ID token is a hand-written implementation on top of OpenSSL and has not been audited by a third party. It was checked against real RSA and EC keys, but not with a full test suite, and automated tests are not part of this plugin.
+> - **Test before you rely on it.** Try the whole flow with your own providers, with registration on and off, and with an email address that already exists, before you use it on a live site.
+> - **No warranty.** The plugin is provided as it is, without any guarantee of fitness for a purpose, and you use it at your own risk. Review the code before you install it, as with any plugin: it runs with full access to xTIPP and its database.
+
 ## Features
 
 - Any number of OIDC providers, managed by administrators in an own admin page: issuer, client ID, client secret, scopes, optional extra authorization parameters, button label, colour and icon (with a live preview).
@@ -172,14 +177,3 @@ plugins/oidc/
     ├── Models/
     └── Services/                OidcClient, OidcDiscoveryService, IdTokenVerifier, Registration, ProviderTemplates, DebugLog
 ```
-
-## AI disclaimer
-
-While writing this, I am not forced to write this AI disclaimer based on the rules of the European Union. But to be fully transparent, I write the following paragraph.
-
-Developing this plugin was assisted by AI, specific **Claude Code** by **Anthropic**. The used model was **Claude Sonnet 5.5**. AI assisted means that a human designed the approach and AI helped building it.
-
-> [!IMPORTANT]
-> - **This is security-relevant code!** It handles logins and creates accounts. The verification of the ID token is a hand-written implementation on top of OpenSSL and has not been audited by a third party. It was checked against real RSA and EC keys, but not with a full test suite, and automated tests are not part of this plugin.
-> - **Test before you rely on it.** Try the whole flow with your own providers, with registration on and off, and with an email address that already exists, before you use it on a live site.
-> - **No warranty.** The plugin is provided as it is, without any guarantee of fitness for a purpose, and you use it at your own risk. Review the code before you install it, as with any plugin: it runs with full access to xTIPP and its database.
