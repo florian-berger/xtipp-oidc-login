@@ -49,6 +49,7 @@ class OidcProviderManagementController extends Controller {
         return view('oidc::admin.index', [
             'allOidcProviders' => $allOidcProviders,
             'redirectUrls'     => $allOidcProviders->mapWithKeys(fn (OidcProvider $provider) => [$provider->id => $this->client->redirectUri($provider)]),
+            'launchUrls'       => $allOidcProviders->mapWithKeys(fn (OidcProvider $provider) => [$provider->id => route('plugin-oidc.redirect', ['provider' => $provider->slug])]),
             'debugEnabled'     => DebugLog::enabled(),
         ]);
     }

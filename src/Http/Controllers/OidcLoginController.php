@@ -58,6 +58,15 @@ class OidcLoginController extends Controller {
         $oidcProvider = OidcProvider::where('slug', $provider)->active()->firstOrFail();
 
         $intent = ($request->query('intent') === 'link' && Auth::check()) ? 'link' : 'login';
+
+        // This address is also the launch URL for the dashboard of a provider (e.g. Authentik). A user who is already
+        // logged in is sent to the start page instead: a new login could switch to another account.
+        if ($intent === 'login' && Auth::check()) {
+            DebugLog::log('flow skipped: the user is already logged in.', $oidcProvider, ['user_id' => Auth::id()]);
+
+            return redirect('/home');
+        }
+
         $state  = Str::random(40);
         $nonce  = Str::random(40);
 

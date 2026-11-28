@@ -34,7 +34,7 @@ The interface of the plugin is in German, like xTIPP itself.
    - **ZIP upload:** upload the ZIP of a [release](https://github.com/florian-berger/xtipp-oidc-login/releases) in the admin area under **Konfiguration → Erweiterungen**. The upload must be enabled on the server with `XTIPP_PLUGIN_UPLOAD=1` in the `.env` of xTIPP.
    - **FTP:** upload the folder to `plugins/oidc/` of your xTIPP installation. Check that **all files** arrived.
 2. Activate it in the admin area under **Konfiguration → Erweiterungen**. This runs the migration, which creates the database tables.
-3. Open **Konfiguration → OIDC-Anbieter** (`/admin/oidc-anbieter`) and create a provider (pick a **template** ("Vorlage") if there is one for your provider). Use the button in the list to copy its redirect URL (`https://your-site/oidc/<slug>/callback`) and register it at the provider.
+3. Open **Konfiguration → OIDC-Anbieter** (`/admin/oidc-anbieter`) and create a provider (pick a **template** ("Vorlage") if there is one for your provider). Use **Kopieren … → Redirect-URL** in the list to copy its redirect URL (`https://your-site/oidc/<slug>/callback`) and register it at the provider.
 4. Optional: allow new accounts via OIDC (see [Settings](#settings)).
 
 The buttons of all active providers then appear on the login page of xTIPP.
@@ -46,7 +46,7 @@ To update the plugin, upload the ZIP of the new version the same way (the old ve
 | Address | Who | Purpose |
 |---|---|---|
 | `/oidc/anmelden` | logged-out users | Login buttons of all active providers (the same buttons are also shown on `/login`) |
-| `/oidc/{slug}/redirect` | everyone | Starts the flow (`?intent=link` to connect, when logged in) |
+| `/oidc/{slug}/redirect` | everyone | Starts the flow (`?intent=link` to connect, when logged in); also the launch URL for the dashboard of a provider, see [Launch URL](#launch-url-authentik) |
 | `/oidc/{slug}/callback` | everyone | Redirect URL, to be registered at the provider |
 | `/oidc/profil-vervollstaendigen` | everyone | Last step of a new registration |
 | `/oidc/verknuepfte-konten` | logged-in users | Link and unlink providers, shows since when each provider is linked ("Verknüpfte Konten") |
@@ -65,6 +65,18 @@ Shown by xTIPP under **Konfiguration → Erweiterungen → OIDC-Anmeldung**:
 | `oidc_debug` | off | Debug mode: writes every step of the flow to the log of Laravel, see [Debug mode](#debug-mode). |
 
 The providers themselves are not plugin settings, because a setting is limited to 400 characters. They are managed on `/admin/oidc-anbieter`.
+
+## Launch URL (Authentik)
+
+Some providers show the applications of a user on a dashboard, for example **My applications** in Authentik. A click on the tile opens the **launch URL** of the application. OpenID Connect has no login that is started by the provider, so the tile has to open the start of the normal flow of the plugin:
+
+```
+https://your-site/oidc/<slug>/redirect
+```
+
+The list on `/admin/oidc-anbieter` copies it with **Kopieren … → Login-URL**. In Authentik, enter it under **Applications → your application → Launch URL**. When the user clicks the tile, the plugin sends them to Authentik, which already knows them and sends them straight back, and they are logged in without any further click. Users who are already logged in to xTIPP land on the start page, no new login is started.
+
+This only works without a click if the authorization flow of the provider in Authentik does not ask for consent (for example `default-provider-authorization-implicit-consent`); with explicit consent, Authentik asks once. Users without a linked account are handled like on the login page: registration if it is allowed, otherwise an error.
 
 ## How a login works
 
