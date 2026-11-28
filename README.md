@@ -65,17 +65,18 @@ The providers themselves are not plugin settings, because a setting is limited t
 
 1. The user clicks a button, the plugin loads the discovery document of the provider (cached for 24 hours; can be cleared via **Konfiguration → System → Cache leeren**) and sends the user to the authorization endpoint with a random `state` and `nonce` kept in the session.
 2. The provider redirects to the callback. The plugin checks the session, the provider and the `state`, then exchanges the code for an ID token (`client_secret_post`).
-3. The ID token is verified (see [Security](#security)).
+3. The ID token is verified (see [Security](#security)). If it has no `email`, `name`, `given_name` or `family_name` and the provider has a `userinfo_endpoint`, the plugin asks that endpoint with the access token and fills in the missing claims, including `nickname` and `preferred_username` (Discord, for example, sends the email only there).
 4. Then one of the following happens:
    - The provider account is already connected: the user is logged in. Inactive accounts are refused.
    - The email address belongs to an existing account: the login is refused with a hint to log in and link the provider under **Verknüpfte Konten** in the profile menu (`/oidc/verknuepfte-konten`).
-   - Otherwise, if registration is allowed: the user completes nickname and name (as far as xTIPP asks for them) and an inactive account is created together with the connection. A notification to the admins is sent that there is a new registration.
+   - Otherwise, if registration is allowed: the user completes nickname and name (as far as xTIPP asks for them, prefilled from the claims and changeable). The default nickname is the `nickname` claim, then `preferred_username`, then `name`, then the part of the email address before the `@`. An inactive account is created together with the connection. A notification to the admins is sent that there is a new registration.
 
 ## Security
 
 - **ID token:** `firebase/php-jwt` and `league/oauth2-client` are not available for plugins, so the token is verified in `src/Services/IdTokenVerifier.php` with OpenSSL. Only RS256/384/512 and ES256/384/512 are accepted, never `none` or HS*. The keys always come from the JWKS of the provider (reloaded once on an unknown key). Checked claims are `iss`, `aud`, `nonce`, `sub`, `exp` and `nbf`, with 60 seconds of tolerance.
 - **No account takeover:** an email address that exists in xTIPP is refused, whether or not the provider reports it as verified. Deleted accounts count too, and the comparison ignores the case. A provider can only be added to an account by its owner while logged in.
 - **Client secret:** stored with the `encrypted` cast of Laravel (AES-256-CBC with the `APP_KEY`). A database dump alone does not reveal it; a dump together with the `.env` does. If a secret leaks, create a new one at the provider.
+- **Userinfo endpoint:** its answer is only used if its `sub` equals the one of the verified ID token, and it only fills claims the ID token does not have; values of the signed ID token always win. If the endpoint fails, the login goes on with the claims of the ID token. The access token is only kept in memory for this request.
 - **Stored data:** per linked provider, `plugin_oidc_identities` keeps only the user, the provider, the subject (`sub`), the email address of the last login and the time of the last login. The other claims of the ID token (name, avatar, locale, ...) are used once to prefill the registration form and are not stored. No ID token, access token or refresh token is stored.
 - **Logging:** a rejected callback logs the provider, the reason and flags, but never the `state` or any token. The [debug mode](#debug-mode) logs more, including personal data, but never secrets or tokens either.
 - The session id is regenerated on login, and all state-changing routes are protected by CSRF.
@@ -93,6 +94,7 @@ For setting up a provider or finding out why a login fails, turn on **Debug-Modu
 | Token endpoint | HTTP status; on success the names of the fields and the granted `scope`, on an error `error` / `error_description` |
 | ID token | `alg`, `kid` and `typ` of the header; if a check fails, the expected and the received value (`iss`, `aud`, `sub`), or the server time next to `iat`, `exp` and `nbf` |
 | Claims | all claims of the verified ID token, except the `nonce` |
+| Userinfo | the missing claims and the whole answer of the userinfo endpoint; on an error the HTTP status and `error` / `error_description`; or why the endpoint was not asked |
 | Decision | logged in, linked, registration started or completed, or the reason of a refusal (email address in use, registration disabled, account not activated, provider account already linked, ...) |
 
 The client secret, the `code`, the `state`, the `nonce` and the tokens (ID, access and refresh token) are never logged.

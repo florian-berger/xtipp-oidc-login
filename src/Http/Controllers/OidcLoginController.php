@@ -132,8 +132,8 @@ class OidcLoginController extends Controller {
         }
 
         try {
-            $idToken = $this->client->fetchIdToken($oidcProvider, (string) $request->query('code'));
-            $claims  = $this->verifier->verify($oidcProvider, $idToken, $flow['nonce']);
+            $tokens = $this->client->fetchTokens($oidcProvider, (string) $request->query('code'));
+            $claims = $this->verifier->verify($oidcProvider, $tokens['id_token'], $flow['nonce']);
         } catch (Throwable $exception) {
             Log::warning('OIDC callback rejected: the id_token could not be fetched or verified.', [
                 'provider' => $provider, 'exception' => $exception->getMessage(),
@@ -144,6 +144,9 @@ class OidcLoginController extends Controller {
 
         // All claims, except the nonce
         DebugLog::log('claims of the id_token', $oidcProvider, ['claims' => array_diff_key($claims, ['nonce' => true])]);
+
+        // Only fills claims that are missing in the id_token, e.g. the email of Discord
+        $claims = $this->client->addUserInfoClaims($oidcProvider, $claims, $tokens['access_token']);
 
         if ($flow['intent'] === 'link') {
             return $this->handleLinkCallback($oidcProvider, $claims, $flow['linking_user_id']);
@@ -258,6 +261,7 @@ class OidcLoginController extends Controller {
             'name'        => $claims['name'] ?? null,
             'given_name'  => $claims['given_name'] ?? null,
             'family_name' => $claims['family_name'] ?? null,
+            'nickname'    => $this->nicknameFromClaims($claims),
         ]);
 
         DebugLog::log('registration started: no linked account, the user completes the profile.', $oidcProvider, [
@@ -266,6 +270,7 @@ class OidcLoginController extends Controller {
             'name'        => $claims['name'] ?? null,
             'given_name'  => $claims['given_name'] ?? null,
             'family_name' => $claims['family_name'] ?? null,
+            'nickname'    => $this->nicknameFromClaims($claims),
         ]);
 
         return redirect()->route('plugin-oidc.complete_profile.show');
@@ -303,6 +308,23 @@ class OidcLoginController extends Controller {
         DebugLog::log('logged in with a linked account', $identity->provider, ['user_id' => $user->id]);
 
         return redirect('/home');
+    }
+
+    /**
+     * Default for the nickname of a new account: "nickname", then "preferred_username", then "name"
+     *
+     * @param array $claims
+     *
+     * @return string|null
+     */
+    private function nicknameFromClaims(array $claims): ?string {
+        foreach (['nickname', 'preferred_username', 'name'] as $claim) {
+            if (isset($claims[$claim]) && is_string($claims[$claim]) && trim($claims[$claim]) !== '') {
+                return mb_substr(trim($claims[$claim]), 0, 255);
+            }
+        }
+
+        return null;
     }
 
     /**

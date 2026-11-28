@@ -120,7 +120,7 @@ class OidcCompleteProfileController extends Controller {
             // Random password: The user can set a real one with "forgot password"
             'password' => bcrypt(Str::random(40)),
             // nickname/name are not nullable - fall back to something, when the field is not collected
-            'nickname' => $pending['name'] ?: explode('@', $finalEmail)[0],
+            'nickname' => ($pending['nickname'] ?? null) ?: ($pending['name'] ?: explode('@', $finalEmail)[0]),
             'name'     => '',
         ];
 
