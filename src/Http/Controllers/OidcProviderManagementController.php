@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use FlorianBerger\Oidc\Models\OidcProvider;
+use FlorianBerger\Oidc\Services\DebugLog;
 use FlorianBerger\Oidc\Services\OidcClient;
 use FlorianBerger\Oidc\Services\OidcDiscoveryService;
 use FlorianBerger\Oidc\Services\ProviderTemplates;
@@ -48,6 +49,7 @@ class OidcProviderManagementController extends Controller {
         return view('oidc::admin.index', [
             'allOidcProviders' => $allOidcProviders,
             'redirectUrls'     => $allOidcProviders->mapWithKeys(fn (OidcProvider $provider) => [$provider->id => $this->client->redirectUri($provider)]),
+            'debugEnabled'     => DebugLog::enabled(),
         ]);
     }
 

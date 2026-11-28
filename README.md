@@ -57,6 +57,7 @@ Shown by xTIPP under **Konfiguration → Erweiterungen → OIDC-Anmeldung**:
 | Key | Default | Meaning |
 |---|---|---|
 | `oidc_allow_registration` | off | Allow new accounts via OIDC. The general registration setting of xTIPP (`registration-enable`) must be on, too. Users who already connected a provider can always log in. |
+| `oidc_debug` | off | Debug mode: writes every step of the flow to the log of Laravel, see [Debug mode](#debug-mode). |
 
 The providers themselves are not plugin settings, because a setting is limited to 400 characters. They are managed on `/admin/oidc-anbieter`.
 
@@ -76,9 +77,27 @@ The providers themselves are not plugin settings, because a setting is limited t
 - **No account takeover:** an email address that exists in xTIPP is refused, whether or not the provider reports it as verified. Deleted accounts count too, and the comparison ignores the case. A provider can only be added to an account by its owner while logged in.
 - **Client secret:** stored with the `encrypted` cast of Laravel (AES-256-CBC with the `APP_KEY`). A database dump alone does not reveal it; a dump together with the `.env` does. If a secret leaks, create a new one at the provider.
 - **Stored data:** per linked provider, `plugin_oidc_identities` keeps only the user, the provider, the subject (`sub`), the email address of the last login and the time of the last login. The other claims of the ID token (name, avatar, locale, ...) are used once to prefill the registration form and are not stored. No ID token, access token or refresh token is stored.
-- **Logging:** a rejected callback logs the provider, the reason and flags, but never the `state` or any token.
+- **Logging:** a rejected callback logs the provider, the reason and flags, but never the `state` or any token. The [debug mode](#debug-mode) logs more, including personal data, but never secrets or tokens either.
 - The session id is regenerated on login, and all state-changing routes are protected by CSRF.
 - Routes of the flow are rate limited (20 requests per minute).
+
+## Debug mode
+
+For setting up a provider or finding out why a login fails, turn on **Debug-Modus** (`oidc_debug`) under **Konfiguration → Erweiterungen → OIDC-Anmeldung**. While it is on, the list on `/admin/oidc-anbieter` shows a warning, and every step of a login writes an entry with the level `info` to the log of Laravel (`storage/logs/`). All entries start with `OIDC debug:` and contain the slug of the provider:
+
+| Step | Logged |
+|---|---|
+| Start | `intent` (`login` or `link`), the authorization endpoint, the `redirect_uri`, the scopes and the extra authorize parameters |
+| Discovery / JWKS | URL, whether the result came from the cache, `issuer`, the endpoints, `scopes_supported`, `claims_supported`, `id_token_signing_alg_values_supported` and the keys of the JWKS (`kid`, `kty`, `alg`, `use`); on an error, the HTTP status and the beginning of the answer |
+| Callback | whether the flow of the session exists and matches (provider, `state`), whether a `code` was sent, and `error` / `error_description` of the provider |
+| Token endpoint | HTTP status; on success the names of the fields and the granted `scope`, on an error `error` / `error_description` |
+| ID token | `alg`, `kid` and `typ` of the header; if a check fails, the expected and the received value (`iss`, `aud`, `sub`), or the server time next to `iat`, `exp` and `nbf` |
+| Claims | all claims of the verified ID token, except the `nonce` |
+| Decision | logged in, linked, registration started or completed, or the reason of a refusal (email address in use, registration disabled, account not activated, provider account already linked, ...) |
+
+The client secret, the `code`, the `state`, the `nonce` and the tokens (ID, access and refresh token) are never logged.
+
+The claims contain **personal data** of the users (name, email address, avatar URL, ...). Turn the debug mode on only while you need it, and off afterwards. Entries already written stay in the log until the log rotation removes them, or until you delete them. The entries need `LOG_LEVEL` `info` or `debug` in the `.env` of xTIPP.
 
 ## Limitations
 
@@ -146,7 +165,7 @@ plugins/oidc/
     ├── OidcServiceProvider.php
     ├── Http/Controllers/
     ├── Models/
-    └── Services/                OidcClient, OidcDiscoveryService, IdTokenVerifier, Registration, ProviderTemplates
+    └── Services/                OidcClient, OidcDiscoveryService, IdTokenVerifier, Registration, ProviderTemplates, DebugLog
 ```
 
 ## AI disclaimer

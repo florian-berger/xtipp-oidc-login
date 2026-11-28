@@ -50,6 +50,13 @@ class OidcClient {
 
         $url = $document['authorization_endpoint'];
 
+        DebugLog::log('redirect to the provider', $provider, [
+            'authorization_endpoint' => $url,
+            'redirect_uri'           => $query['redirect_uri'],
+            'scope'                  => $query['scope'],
+            'extra_authorize_params' => $provider->extra_authorize_params ?? [],
+        ]);
+
         return $url . (str_contains($url, '?') ? '&' : '?') . http_build_query($query, '', '&', PHP_QUERY_RFC3986);
     }
 
@@ -72,7 +79,22 @@ class OidcClient {
             'redirect_uri'  => $this->redirectUri($provider),
             'client_id'     => $provider->client_id,
             'client_secret' => $provider->client_secret,
-        ])->throw();
+        ]);
+
+        // Only the names of the fields and the granted scope: The answer contains the tokens
+        $body = $response->json();
+        DebugLog::log('answer of the token endpoint', $provider, [
+            'token_endpoint' => $document['token_endpoint'],
+            'status'         => $response->status(),
+        ] + ($response->successful() ? [
+            'fields' => is_array($body) ? array_keys($body) : null,
+            'scope'  => is_array($body) ? ($body['scope'] ?? null) : null,
+        ] : [
+            'error'             => is_array($body) ? ($body['error'] ?? null) : null,
+            'error_description' => is_array($body) ? ($body['error_description'] ?? null) : null,
+        ]));
+
+        $response->throw();
 
         $idToken = $response->json('id_token');
         if (!is_string($idToken) || $idToken === '') {

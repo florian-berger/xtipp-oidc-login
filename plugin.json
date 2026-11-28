@@ -21,6 +21,13 @@
             "type": "checkbox",
             "default": false,
             "help": "Ausgeschaltet können sich nur Benutzer anmelden, die ihr Konto bereits mit einem Anbieter verknüpft haben. Zusätzlich gilt die allgemeine Einstellung zur Registrierung von xTIPP. Die Anbieter selbst verwaltest du unter /admin/oidc-anbieter."
+        },
+        {
+            "key": "oidc_debug",
+            "label": "Debug-Modus",
+            "type": "checkbox",
+            "default": false,
+            "help": "Schreibt jeden Schritt der Anmeldung ausführlich in das Log von Laravel, inklusive aller Angaben, die der Anbieter über den Benutzer liefert (z.B. Name und E-Mail-Adresse). Nur zum Einrichten oder zur Fehlersuche einschalten und danach wieder ausschalten."
         }
     ]
 }
