@@ -71,15 +71,28 @@ class IdTokenVerifier {
         $claims = $this->decodeJson($parts[1]);
         $alg    = $header['alg'] ?? null;
 
+        DebugLog::log('header of the id_token', $provider, [
+            'alg' => $alg,
+            'kid' => $header['kid'] ?? null,
+            'typ' => $header['typ'] ?? null,
+        ]);
+
         if (!is_string($alg) || !isset(self::ALGORITHMS[$alg])) {
-            throw new RuntimeException('The id_token uses an unsupported algorithm.');
+            $this->fail($provider, 'The id_token uses an unsupported algorithm.', [
+                'received' => $alg,
+                'allowed'  => array_keys(self::ALGORITHMS),
+            ]);
         }
 
         $signature = $this->base64UrlDecode($parts[2]);
         $data      = $parts[0] . '.' . $parts[1];
 
         if (!$this->signatureIsValid($provider, $alg, $header['kid'] ?? null, $data, $signature)) {
-            throw new RuntimeException('The signature of the id_token is invalid.');
+            // The keys of the JWKS are in the entry "JWKS" before this one
+            $this->fail($provider, 'The signature of the id_token is invalid.', [
+                'alg' => $alg,
+                'kid' => $header['kid'] ?? null,
+            ]);
         }
 
         $this->checkClaims($provider, $claims, $expectedNonce);
@@ -154,29 +167,65 @@ class IdTokenVerifier {
     private function checkClaims(OidcProvider $provider, array $claims, string $expectedNonce): void {
         $issuer = $this->discovery->getDocument($provider)['issuer'] ?? $provider->issuer;
         if (!isset($claims['iss']) || !is_string($claims['iss']) || rtrim($claims['iss'], '/') !== rtrim($issuer, '/')) {
-            throw new RuntimeException('The id_token has an unexpected issuer.');
+            $this->fail($provider, 'The id_token has an unexpected issuer.', [
+                'expected' => $issuer,
+                'received' => $claims['iss'] ?? null,
+            ]);
         }
 
         if (!in_array($provider->client_id, (array) ($claims['aud'] ?? []), true)) {
-            throw new RuntimeException('The id_token has an unexpected audience.');
+            $this->fail($provider, 'The id_token has an unexpected audience.', [
+                'expected' => $provider->client_id,
+                'received' => $claims['aud'] ?? null,
+            ]);
         }
 
+        // Never log the values of the nonce
         if (!isset($claims['nonce']) || !is_string($claims['nonce']) || !hash_equals($expectedNonce, $claims['nonce'])) {
-            throw new RuntimeException('The id_token has an unexpected nonce.');
+            $this->fail($provider, 'The id_token has an unexpected nonce.', [
+                'has_nonce' => isset($claims['nonce']),
+            ]);
         }
 
         if (!isset($claims['sub']) || !is_string($claims['sub']) || $claims['sub'] === '') {
-            throw new RuntimeException('The id_token has no subject.');
+            $this->fail($provider, 'The id_token has no subject.', [
+                'received' => $claims['sub'] ?? null,
+            ]);
         }
 
-        $now = time();
+        $now   = time();
+        $times = [
+            'server_time' => $now,
+            'iat'         => $claims['iat'] ?? null,
+            'exp'         => $claims['exp'] ?? null,
+            'nbf'         => $claims['nbf'] ?? null,
+            'leeway'      => self::LEEWAY,
+        ];
+
         if (!isset($claims['exp']) || !is_numeric($claims['exp']) || $claims['exp'] + self::LEEWAY < $now) {
-            throw new RuntimeException('The id_token is expired.');
+            $this->fail($provider, 'The id_token is expired.', $times);
         }
 
         if (isset($claims['nbf']) && is_numeric($claims['nbf']) && $claims['nbf'] - self::LEEWAY > $now) {
-            throw new RuntimeException('The id_token is not valid yet.');
+            $this->fail($provider, 'The id_token is not valid yet.', $times);
         }
+    }
+
+    /**
+     * Write the details of a failed check to the debug log and stop the verification
+     *
+     * @param OidcProvider $provider
+     * @param string       $message
+     * @param array        $details
+     *
+     * @return never
+     *
+     * @throws RuntimeException always
+     */
+    private function fail(OidcProvider $provider, string $message, array $details): never {
+        DebugLog::log('verification failed: ' . $message, $provider, $details);
+
+        throw new RuntimeException($message);
     }
 
     /**

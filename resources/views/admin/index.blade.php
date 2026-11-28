@@ -2,6 +2,16 @@
 @section('title', trans('oidc::ui.admin.index.sidename'))
 @section('content')
     <div class="view-wrapper" data-view="plugin-oidc-index">
+        @if ($debugEnabled)
+            <div class="w-full px-2 py-2 mb-4 bg-yellow-400" role="status">
+                <strong>{{ trans('oidc::ui.admin.index.debug_title') }}</strong>
+                {{ trans('oidc::ui.admin.index.debug_text') }}
+                @if (Route::has('admin.config.plugins.settings'))
+                    <a href="{{ route('admin.config.plugins.settings', ['name' => 'oidc']) }}" class="underline">{{ trans('oidc::ui.admin.index.debug_settings') }}</a>
+                @endif
+            </div>
+        @endif
+
         <div class="mb-10 text-right">
             <a href="{{ route('plugin-oidc.admin.new') }}" title="{{ trans('oidc::ui.admin.index.create') }}" class="btn-normal bg-emerald-500">
                 <i class="fa fa-plus mr-1" aria-hidden="true"></i>

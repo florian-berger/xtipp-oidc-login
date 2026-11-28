@@ -16,6 +16,7 @@ use Illuminate\Support\Str;
 use Throwable;
 use FlorianBerger\Oidc\Models\OidcIdentity;
 use FlorianBerger\Oidc\Models\OidcProvider;
+use FlorianBerger\Oidc\Services\DebugLog;
 use FlorianBerger\Oidc\Services\Registration;
 
 /**
@@ -67,6 +68,8 @@ class OidcCompleteProfileController extends Controller {
         $oidcProvider = OidcProvider::active()->find($pending['provider_id']);
 
         if (!$oidcProvider) {
+            DebugLog::log('registration refused: the provider was deactivated or deleted in the meantime.', null, ['provider_id' => $pending['provider_id']]);
+
             $request->session()->forget('plugin-oidc.pending');
 
             return redirect()->route('login')->with('message-danger', trans('oidc::ui.message.invalid_flow'));
@@ -95,6 +98,8 @@ class OidcCompleteProfileController extends Controller {
 
         // A verified email of the provider could belong to an account created in the meantime
         if ($email && Registration::emailInUse($email)) {
+            DebugLog::log('registration refused: the email address belongs to an account created in the meantime.', $oidcProvider, ['email' => $email]);
+
             $request->session()->forget('plugin-oidc.pending');
 
             return redirect()->route('login')->with('message-danger', trans('oidc::ui.message.email_exists'));
@@ -102,6 +107,8 @@ class OidcCompleteProfileController extends Controller {
 
         // The subject must not be linked in the meantime (second tab)
         if (OidcIdentity::where('oidc_provider_id', $oidcProvider->id)->where('subject', $pending['subject'])->exists()) {
+            DebugLog::log('registration refused: the provider account was linked in the meantime.', $oidcProvider, ['subject' => $pending['subject']]);
+
             $request->session()->forget('plugin-oidc.pending');
 
             return redirect()->route('login')->with('message-danger', trans('oidc::ui.message.invalid_flow'));
@@ -113,7 +120,7 @@ class OidcCompleteProfileController extends Controller {
             // Random password: The user can set a real one with "forgot password"
             'password' => bcrypt(Str::random(40)),
             // nickname/name are not nullable - fall back to something, when the field is not collected
-            'nickname' => $pending['name'] ?: explode('@', $finalEmail)[0],
+            'nickname' => ($pending['nickname'] ?? null) ?: ($pending['name'] ?: explode('@', $finalEmail)[0]),
             'name'     => '',
         ];
 
@@ -161,12 +168,14 @@ class OidcCompleteProfileController extends Controller {
                 'user_id'          => $user->id,
                 'oidc_provider_id' => $oidcProvider->id,
                 'subject'          => $pending['subject'],
-                'email'            => $user->email,
+                'email'            => $pending['email'],
                 'last_login_at'    => now(),
             ]);
 
             return $user;
         });
+
+        DebugLog::log('registration completed, the account waits for the activation by an admin.', $oidcProvider, ['user_id' => $user->id]);
 
         $this->sendMail($user, new WelcomeMail($user));
 
@@ -209,6 +218,8 @@ class OidcCompleteProfileController extends Controller {
      * @return RedirectResponse
      */
     private function registrationDisabled(Request $request): RedirectResponse {
+        DebugLog::log('registration refused: the registration was disabled in the meantime.', null);
+
         $request->session()->forget('plugin-oidc.pending');
 
         return redirect()->route('login')->with('message-danger', trans('oidc::ui.message.registration_disabled'));

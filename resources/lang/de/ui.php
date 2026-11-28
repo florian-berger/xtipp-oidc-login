@@ -78,6 +78,9 @@ return [
             'delete'            => 'Löschen',
             'delete_title'      => 'Anbieter löschen',
             'delete_confirm'    => 'Soll der Anbieter „:name“ mit allen Verknüpfungen der Benutzer gelöscht werden?',
+            'debug_title'       => 'Debug-Modus ist eingeschaltet.',
+            'debug_text'        => 'Jede Anmeldung über einen Anbieter wird ausführlich ins Log geschrieben, inklusive Name und E-Mail-Adresse der Benutzer. Schalte den Debug-Modus nach der Fehlersuche wieder aus.',
+            'debug_settings'    => 'Zu den Einstellungen',
         ],
         'form' => [
             'sidename-new'                => 'Neuer OIDC-Anbieter',

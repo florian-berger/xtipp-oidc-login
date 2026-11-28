@@ -10,7 +10,7 @@
             @if (config('xtipp.user-nickname') === 1)
                 <div class="w-full{{ $errors->has('nickname') ? ' has-error' : '' }}">
                     <label for="nickname" class="label-normal-gray">{{ trans('oidc::ui.complete_profile.nickname') }}</label>
-                    <input id="nickname" type="text" class="input-normal-gray" name="nickname" value="{{ old('nickname') }}" required
+                    <input id="nickname" type="text" class="input-normal-gray" name="nickname" value="{{ old('nickname', $pending['nickname'] ?? null) }}" required
                            @if ($errors->has('nickname')) aria-invalid="true" aria-describedby="error-nickname-msg" @endif>
 
                     @if ($errors->has('nickname'))
