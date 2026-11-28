@@ -15,7 +15,9 @@ Route::middleware(['web'])->group(function () {
         Route::get('anmelden', [OidcLoginController::class, 'index'])->name('plugin-oidc.login');
         Route::get('profil-vervollstaendigen', [OidcCompleteProfileController::class, 'show'])->name('plugin-oidc.complete_profile.show');
         Route::post('profil-vervollstaendigen', [OidcCompleteProfileController::class, 'store'])->name('plugin-oidc.complete_profile.store');
-        Route::get('{provider}/redirect', [OidcLoginController::class, 'redirect'])->name('plugin-oidc.redirect');
+        Route::get('{provider}/login', [OidcLoginController::class, 'providerLogin'])->name('plugin-oidc.provider_login');
+        // Old address of the login with a provider (up to plugin version 0.1.0), kept for launch URLs and bookmarks
+        Route::get('{provider}/redirect', [OidcLoginController::class, 'legacyRedirect']);
         Route::get('{provider}/callback', [OidcLoginController::class, 'callback'])->name('plugin-oidc.callback');
     });
 
