@@ -1,6 +1,6 @@
 <div>
     <a
-        href="{{ route('plugin-oidc.redirect', ['provider' => $oidcProvider->slug]) }}"
+        href="{{ route('plugin-oidc.provider_login', ['provider' => $oidcProvider->slug]) }}"
         class="btn-normal plugin-oidc-button mt-2 inline-block"
         @if ($oidcProvider->button_color) style="background-color: {{ $oidcProvider->button_color }};" @endif
     >

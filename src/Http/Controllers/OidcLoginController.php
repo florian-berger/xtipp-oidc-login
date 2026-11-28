@@ -54,10 +54,19 @@ class OidcLoginController extends Controller {
      *
      * @return RedirectResponse
      */
-    public function redirect(Request $request, string $provider): RedirectResponse {
+    public function providerLogin(Request $request, string $provider): RedirectResponse {
         $oidcProvider = OidcProvider::where('slug', $provider)->active()->firstOrFail();
 
         $intent = ($request->query('intent') === 'link' && Auth::check()) ? 'link' : 'login';
+
+        // This address is also the launch URL for the dashboard of a provider (e.g. Authentik). A user who is already
+        // logged in is sent to the start page instead: a new login could switch to another account.
+        if ($intent === 'login' && Auth::check()) {
+            DebugLog::log('flow skipped: the user is already logged in.', $oidcProvider, ['user_id' => Auth::id()]);
+
+            return redirect('/home');
+        }
+
         $state  = Str::random(40);
         $nonce  = Str::random(40);
 
@@ -82,6 +91,21 @@ class OidcLoginController extends Controller {
         DebugLog::log('flow started', $oidcProvider, ['intent' => $intent]);
 
         return redirect()->away($url);
+    }
+
+    /**
+     * Old address "/oidc/{slug}/redirect" (up to plugin version 0.1.0), kept for launch URLs and bookmarks
+     *
+     * Redirects to the named route with the same query (e.g. intent=link), so the address is complete, also when
+     * xTIPP is installed in a subfolder. The new address checks the provider itself.
+     *
+     * @param Request $request
+     * @param string  $provider
+     *
+     * @return RedirectResponse
+     */
+    public function legacyRedirect(Request $request, string $provider): RedirectResponse {
+        return redirect()->route('plugin-oidc.provider_login', ['provider' => $provider] + $request->query(), 301);
     }
 
     /**

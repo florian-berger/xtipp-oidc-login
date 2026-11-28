@@ -53,7 +53,7 @@
                 <div class="flex justify-between items-center p-2 gap-2 odd:bg-slate-200">
                     <div>{{ $provider->displayName() }}</div>
                     <div>
-                        <a href="{{ route('plugin-oidc.redirect', ['provider' => $provider->slug, 'intent' => 'link']) }}" class="btn-small bg-emerald-500">
+                        <a href="{{ route('plugin-oidc.provider_login', ['provider' => $provider->slug, 'intent' => 'link']) }}" class="btn-small bg-emerald-500">
                             {{ trans('oidc::ui.connections.btn.connect') }}
                         </a>
                     </div>
